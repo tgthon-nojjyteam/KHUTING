@@ -13,7 +13,7 @@ h1 {
     font-family: "Noto Sans KR", sans-serif;
     font-weight: 900;
     letter-spacing: -0.5px;
-    margin-left: 10px
+    margin-left: 10px;
 }
 
 h3 {
@@ -21,7 +21,7 @@ h3 {
     font-family: "Noto Sans KR", sans-serif;
     font-weight: 500;
     letter-spacing: -0.5px;
-    margin-top: 60px;
+    margin: 0; /* margin-top을 제거하여 기본 margin 사용 */
 }
 
 h4 {
@@ -48,4 +48,80 @@ h4 {
     font-family: "Noto Sans KR", sans-serif;
     font-weight: 700;
     letter-spacing: -0.5px;
+}
+
+/* 체크 표시와 텍스트를 같은 줄에 놓기 위한 수정 */
+.wrapper {
+    display: flex;
+    align-items: center; /* 세로로 중앙 정렬 */
+    justify-content: center; /* 가로로 중앙 정렬 */
+    margin-top: 60px;
+    margin-left: -10px;
+}
+
+/* 체크 표시 크기 및 간격 조정 */
+.animated-check {
+    height: 1.5em; /* 크기 조정 */
+    width: 1.5em; /* 크기 조정 */
+    margin-right: 10px; /* 체크 표시와 텍스트 간의 간격 */
+}
+
+.animated-check path {
+    fill: none;
+    stroke: #42c1a6;
+    stroke-width: 4;
+    stroke-dasharray: 23;
+    stroke-dashoffset: 23;
+    animation: draw 1.5s linear forwards;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@keyframes draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.form-group {
+    position: relative;
+}
+
+.icon-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    margin-left: 10px;
+}
+
+.form-control {
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    margin-left: 50px; /* 아이콘과 입력 필드 사이의 거리 */
+    border-width: 0;
+    font-size: 16px;
+    padding: 10px;
+    width: calc(100% - 40px); /* 아이콘 너비를 고려한 입력 필드 너비 */
+}
+
+
+hr {
+    width: 92%
+}
+
+
+.btn-primary {
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #E25E5B;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
 }
