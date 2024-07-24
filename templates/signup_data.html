@@ -5,45 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </head>
 <body>
     <h1>회원가입</h1>
+    <div class="wrapper">
+        <svg class="animated-check" viewBox="0 0 24 24">
+            <path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none" />
+        </svg>
+        <h3>경희대학교 학생 인증이 완료되었어요.</h3>
+    </div>
+    <br>
     <form action="/signup_data" method="POST">
         <div class="form-group">
-            <label for="userid">아이디</label>
-            <input type="text" class="form-control" id="userid" placeholder="아이디" name="userid"/>
-                <!-- id는 삭제해도 되더라. 마지막에 name과 app.py의 get 메소드 사용하는 부분이 일치해야 상응한다 -->
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <input type="text" class="form-control" id="userid" placeholder="아이디를 입력해주세요." name="userid"/>
         </div>
+
+        <hr />
+
         <div class="form-group">
-            <label for="username">사용자 이름</label>
-            <input type="text" class="form-control" id="username" placeholder="사용자 이름" name="username"/>
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11M5 11H19C20.1046 11 21 11.8954 21 13V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V13C3 11.8954 3.89543 11 5 11Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>      
+            <input type="password" class="form-control" id="password" placeholder="비밀번호를 입력해주세요." name="password"/>
         </div>
+
+        <hr />
+
         <div class="form-group">
-            <label for="password">비밀번호</label>
-            <input type="password" class="form-control" id="password" placeholder="비밀번호" name="password"/>
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11M5 11H19C20.1046 11 21 11.8954 21 13V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V13C3 11.8954 3.89543 11 5 11Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>       
+            <input type="password" class="form-control" id="password" placeholder="비밀번호를 다시 입력해주세요." name="password"/>
         </div>
+
+        <hr />
+
         <div class="form-group">
-            <label for="re_password">비밀번호확인</label>
-            <input type="password" class="form-control" id="re_password" placeholder="비밀번호확인" name="re_password"/>
+            <div class="icon-wrapper">
+                <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 7H19M1 1H19M1 13H19" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>    
+            </div>      
+            <input type="text" class="form-control" id="password" placeholder="학과를 입력해주세요." name="password"/>
         </div>
+
+        <hr />
+
         <div class="form-group">
-            <label for="re_password">학번</label>
-            <input type="password" class="form-control" id="re_password" placeholder="학번" name="re_password"/>
+            <div class="icon-wrapper">
+                <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 7H19M1 1H19M1 13H19" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>    
+            </div>      
+            <input type="text" class="form-control" id="password" placeholder="학번을 입력해주세요." name="password"/>
         </div>
+
+        <hr />
+
         <div class="form-group">
-            <label for="re_password">학과</label>
-            <input type="password" class="form-control" id="re_password" placeholder="학과" name="re_password"/>
+            <div class="icon-wrapper">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 13C7 13 8.5 15 11 15C13.5 15 15 13 15 13M8 8H8.01M14 8H14.01M21 11C21 16.5228 16.5228 21 11 21C5.47715 21 1 16.5228 1 11C1 5.47715 5.47715 1 11 1C16.5228 1 21 5.47715 21 11Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>       
+            </div>
+            <input type="text" class="form-control" id="password" placeholder="MBTI를 입력해주세요.(선택)" name="password"/>
         </div>
-        <div class="form-group">
-            <label for="re_password">MBTI(선택)</label>
-            <input type="password" class="form-control" id="re_password" placeholder="MBTI(선택)" name="re_password"/>
-            <h4>MBTI에 대해 모르는 경우 "모름" 기입</h4>
-            <a href="https://www.16personalities.com/ko/%EB%AC%B4%EB%A3%8C-%EC%84%B1%EA%B2%A9-%EC%9C%A0%ED%98%95-%EA%B2%80%EC%82%AC">MBTI 테스트 사이트로 이동</a>
-        </div>
-        <button type="submit" class="btn btn-primary">등록</button>
+
+        <hr />
+
+        <br>
+        <button type="submit" class="btn btn-primary">완료</button>
     </form>
 </body>
 </html>
