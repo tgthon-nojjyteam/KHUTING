@@ -1,0 +1,15 @@
+.shape {
+    width: 100%; /* 도형의 너비 */
+    height: 150px; /* 도형의 높이 */
+    background-color: #32425C; /* 도형의 색상 */
+    border-top-left-radius: 0; /* 위쪽 왼쪽 모서리: 직선 */
+    border-top-right-radius: 0; /* 위쪽 오른쪽 모서리: 직선 */
+    border-bottom-left-radius: 50px; /* 아래쪽 왼쪽 모서리: 둥글게 */
+    border-bottom-right-radius: 50px; /* 아래쪽 오른쪽 모서리: 둥글게 */
+}
+
+.logo {
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 30%
+}
