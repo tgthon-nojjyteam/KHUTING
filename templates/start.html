@@ -9,13 +9,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <script>
+        function RandomPage() {
+            const pages = ['signup_1', 'signup_2', 'signup_3'];
+            const randomIndex = Math.floor(Math.random() * pages.length);
+            const randomPage = pages[randomIndex];
+            location.href = '/' + randomPage;
+        }
+    </script>
+
 </head>
 <body>
     <div>
         <img src="{{ url_for('static', filename='images/logo_vertical.png') }}" alt="Logo">
     </div>
     <div class="center">
-        <button type="button" class="signup-button" onclick="location.href='/signup'">회원가입</button>
+        <button type="button" class="signup-button" onclick="location.href='/signup_1'">회원가입</button>
         <br>
         <button type="button" class="login-button" onclick="location.href='/login'">로그인</button>
         <br>
