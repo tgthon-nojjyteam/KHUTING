@@ -1,34 +1,88 @@
-from flask import Flask, render_template, request #render_template으로 html파일 렌더링
-from models import db
+from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages #render_template으로 html파일 렌더링
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import session
 import os
-from models import Fcuser
+
 app = Flask(__name__)
 
-@app.route('/signup_data', methods=['GET','POST'])
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
+
+
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class Fcuser(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userid = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+    gender = db.Column(db.String(10), nullable=False)
+    department = db.Column(db.String(120), nullable=False)
+    student_id = db.Column(db.String(10), nullable=False)
+    mbti = db.Column(db.String(4), nullable=True)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Fcuser.query.get(int(user_id))
+    
+
+@app.route('/signup_data', methods=['GET', 'POST'])
 def signup_data():
     if request.method == 'GET':
         return render_template("signup_data.html")
     else:
-        #회원정보 생성
-        userid = request.form.get('userid') 
-        username = request.form.get('username')
+        userid = request.form.get('userid')
         password = request.form.get('password')
-        re_password = request.form.get('re_password')
-        print(password) # 들어오나 확인해볼 수 있다. 
+        password_confirm = request.form.get('password_confirm')
+        gender = request.form.get('gender')
+        department = request.form.get('department')
+        student_id = request.form.get('student_id')
+        mbti = request.form.get('mbti')
 
-
-        if not (userid and username and password and re_password) :
+        if not (userid and password and password_confirm and gender and department and student_id):
             return "모두 입력해주세요"
-        elif password != re_password:
+        elif password != password_confirm:
             return "비밀번호를 확인해주세요"
-        else: #모두 입력이 정상적으로 되었다면 밑에명령실행(DB에 입력됨)
-            fcuser = Fcuser()         
-            fcuser.password = password           #models의 FCuser 클래스를 이용해 db에 입력한다.
-            fcuser.userid = userid
-            fcuser.username = username      
+        else:
+            hashed_password = generate_password_hash(password, method='sha256')
+            fcuser = Fcuser(
+                userid=userid,
+                password=hashed_password,  # 해시된 비밀번호 저장
+                gender=gender,
+                department=department,
+                student_id=student_id,
+                mbti=mbti
+            )
             db.session.add(fcuser)
             db.session.commit()
-            return "회원가입 완료"
+            return redirect(url_for('index'))
+
+        
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    else:
+        userid = request.form.get('userid')
+        password = request.form.get('password')
+        
+        user = Fcuser.query.filter_by(userid=userid).first()
+        
+        if user and check_password_hash(user.password, password):
+            session['userid'] = user.userid
+            return redirect(url_for('index'))
+        else:
+            return "로그인 실패: 아이디나 비밀번호를 확인하세요"
+        
 
 @app.route('/')
 def start():
@@ -54,27 +108,10 @@ def signup_4():
 def signup_5():
     return render_template('signup_5.html')
 
-@app.route('/login')
-def login():
-    return render_template('login.html')
-
 @app.route('/index')
 def index():
     return render_template('index.html')
     
 
 if __name__ == '__main__':
-    basedir = os.path.abspath(os.path.dirname(__file__))  # database 경로를 절대경로로 설정함
-    dbfile = os.path.join(basedir, 'db.sqlite') # 데이터베이스 이름과 경로
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + dbfile
-    app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True     # 사용자에게 원하는 정보를 전달완료했을때가 TEARDOWN, 그 순간마다 COMMIT을 하도록 한다.라는 설정
-    #여러가지 쌓아져있던 동작들을 Commit을 해주어야 데이터베이스에 반영됨. 이러한 단위들은 트렌젝션이라고함.
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False   # True하면 warrnig메시지 유발, 
-
-    db.init_app(app) #초기화 후 db.app에 app으로 명시적으로 넣어줌
-    db.app = app
-
-    with app.app_context():
-        db.create_all() 
-        
     app.run(host='0.0.0.0')
