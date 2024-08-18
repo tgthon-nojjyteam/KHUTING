@@ -38,6 +38,16 @@ h3 {
     z-index: 1000;
 }
 
+.settings {
+    position: fixed;
+    top: 18px;
+    right: 60px;
+    width: 28px;
+    height: auto;
+    cursor: pointer;
+    z-index: 1000;
+}
+
 .profile-image-container {
     text-align: center;
     margin-top: -60px;
@@ -80,7 +90,7 @@ h3 {
 
 .text-box {
     width: 280px;
-    height: 150px;
+    height: 120px;
     max-width: 600px;
     background-color: #f4f4f4;
     border-radius: 15px;

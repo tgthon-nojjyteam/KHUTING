@@ -26,15 +26,18 @@
     </div>
 
     <div class="profile-image-container">
-        <img src="{{ url_for('static', filename='images/' + ('male.png' if user.gender == '남자' else 'female.png')) }}" alt="Profile Picture" class="profile-picture">
+        <img src="{{ url_for('static', filename='images/' + user.profile_picture) }}" alt="Profile Picture" class="profile-picture">
     </div>
 
     <div class="department-image-container">
         <img src="{{ url_for('static', filename='images/departments/' + (user.department|replace(' ', '_')|replace('&', 'and') + '.png')) }}" alt="Department Image" class="department-image">
     </div>
+    <a href="{{ url_for('settings') }}">
+        <img src="{{ url_for('static', filename='images/settings.png') }}" alt="Settings" class="settings">
+    </a>
 
     <img src="{{ url_for('static', filename='images/logout.png') }}" alt="Logout" class="logout" onclick="confirmLogout()">
-    
+
     <h3>{{ user.username }} {{ user.department }} #{{ user.unique_number }}</h3>
 
     <button id="match-button">매칭하기</button>

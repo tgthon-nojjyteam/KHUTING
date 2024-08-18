@@ -48,6 +48,7 @@ class Fcuser(UserMixin, db.Model):
     department = db.Column(db.String(120), nullable=False)
     student_id = db.Column(db.String(10), nullable=False)
     mbti = db.Column(db.String(4), nullable=True)
+    profile_picture = db.Column(db.String(50), nullable=True)
     unique_number = db.Column(db.Integer, unique=True, nullable=True)
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=True)
     matching = db.Column(db.Boolean, default=False)
@@ -105,6 +106,7 @@ def signup_data():
             try:
                 hashed_password = generate_password_hash(password, method='sha256')
                 unique_number = random.randint(1000, 9999)
+                profile_picture = f'{gender}1.png'
                 fcuser = Fcuser(
                     username=username,
                     userid=userid,
@@ -114,12 +116,14 @@ def signup_data():
                     department=department,
                     student_id=student_id,
                     mbti=mbti,
-                    unique_number=unique_number
+                    unique_number=unique_number,
+                    profile_picture=profile_picture
                 )
                 db.session.add(fcuser)
                 db.session.commit()
-                flash("회원가입이 완료되었습니다. 로그인해주세요.")
-                return redirect(url_for('login'))
+                
+                login_user(fcuser)
+                return redirect(url_for('profile'))
             except Exception as e:
                 db.session.rollback()
                 flash(f"회원가입 실패: {str(e)}")
@@ -143,6 +147,21 @@ def login():
             return redirect(url_for('login'))
 
     return render_template('login.html')
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        profile_picture = request.form.get('profile_picture')
+        if profile_picture:
+            current_user.profile_picture = profile_picture
+            db.session.commit()
+            flash("회원가입이 완료되었습니다. 다시 로그인해주세요.")
+            logout_user()
+            return redirect(url_for('profile'))
+        flash("프로필 사진을 선택해 주세요.")
+        return redirect(url_for('profile'))
+    return render_template('profile.html', gender=current_user.gender, profile_picture=current_user.profile_picture)
 
 @app.route('/logout')
 @login_required
@@ -181,6 +200,10 @@ def index():
     team = Team.query.get(user.team_id) if user.team_id else None
     team_members = Team.query.get(user.team_id).members if team else []
     return render_template('index.html', user=user, team_members=team_members)
+
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
 
 
 @app.route('/team_register', methods=['GET', 'POST'])

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>프로필 사진 선택</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+<body>
+    <h1>프로필 사진 선택</h1>
+    <form id="profile-form" action="{{ url_for('profile') }}" method="POST">
+        <div class="slider">
+            <div class="slides">
+                {% if gender == '여자' %}
+                    {% for i in range(1, 5) %}
+                        <div class="slide" data-image="female{{ i }}.png">
+                            <img src="{{ url_for('static', filename='images/female' ~ i ~ '.png') }}" alt="Profile Picture {{ i }}">
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    {% for i in range(1, 5) %}
+                        <div class="slide" data-image="male{{ i }}.png">
+                            <img src="{{ url_for('static', filename='images/male' ~ i ~ '.png') }}" alt="Profile Picture {{ i }}">
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <button type="button" class="prev">&#10094;</button>
+            <button type="button" class="next">&#10095;</button>
+        </div>
+        <input type="hidden" id="selected-image" name="profile_picture">
+        <button type="submit" class="submit-btn">선택 완료</button>
+    </form>
+    <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+</body>
+</html>
