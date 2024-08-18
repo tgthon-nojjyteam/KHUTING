@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/email.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const message = "{{ message }}";
+          const status = "{{ status }}";
+          
+          if (message) {
+              alert(message);
+              if (status === "success") {
+                  window.location.href = '/email_verification';
+              }
+          }
+      });
+  </script>
+  
+</head>
+
+  <body>
+    <h1>회원가입</h1>
+    <h3>경희대학교 학생 인증이 필요해요.</h3>
+    <div id="message">
+     <h1>{{ content }}</h1>
+     <form action="/email" id="email-form" method=post>
+      <div class="form-group">
+        <input type="text" class="form-control" name=email_receiver placeholder="이메일을 입력해주세요." value="" required />
+        <h4>@khu.ac.kr</h4>
+        <input type=submit value="전송">
+      </div>
+     </form>
+    </div>
+  </body>
+</html>

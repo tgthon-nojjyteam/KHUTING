@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script> <!-- main.js 추가 -->
+    <script>
+
+        function handleButtonClick(answer) {
+            if (answer === 'GS25') {
+                alert('정답입니다! 다음 질문으로 넘어갑니다.');
+                correctC()
+            } else {
+                alert('오답입니다. 다음 질문으로 넘어갑니다.')
+            }
+            location.href = '/signup_3';
+        }
+
+        
+    </script>
+
+</head>
+<body>
+    <h1>회원가입</h1>
+    <h3>경희대학교 학생 인증이 필요해요.</h3>
+    <br>
+    <br>
+    <h4>Q2. 다음 중 교내 편의점 브랜드로 옳은 것은?</h4>
+    <div class="center">
+        <button type="button" class="answer-button" onclick="handleButtonClick('세븐일레븐')">세븐일레븐</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('CU')">CU</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('이마트24')">이마트24</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('GS25')">GS25</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('미니스톱')">미니스톱</button>
+    <div>
+</body>
+</html>

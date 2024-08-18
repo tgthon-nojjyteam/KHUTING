@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script> <!-- main.js 추가 -->
+    <script>
+
+        function handleButtonClick(answer) {
+            if (answer === '1550-1') {
+                alert('정답입니다! 다음 질문으로 넘어갑니다.');
+                correctC()
+            } else {
+                alert('오답입니다. 다음 질문으로 넘어갑니다.')
+            }
+            location.href = '/signup_2';
+        }
+    </script>
+
+</head>
+<body>
+    <h1>회원가입</h1>
+    <h3>경희대학교 학생 인증이 필요해요.</h3>
+    <br>
+    <br>
+    <h4>Q1. 다음 중 교내 진입 버스가 아닌 것은?</h4>
+    <div class="center">
+        <button type="button" class="answer-button" onclick="handleButtonClick('M5107')">M5107</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('1550-1')">1550-1</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('5100')">5100</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('7000')">7000</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('1560')">1560</button>
+    <div>
+</body>
+</html>

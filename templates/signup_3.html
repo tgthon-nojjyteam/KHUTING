@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script> <!-- main.js 추가 -->
+    <script>
+
+        function handleButtonClick(answer) {
+            if (answer === '세화원') {
+                alert('정답입니다! 다음 질문으로 넘어갑니다.');
+                correctC()
+            } else {
+                alert('오답입니다. 다음 질문으로 넘어갑니다.')
+            }
+            location.href = '/signup_4';
+        }
+    </script>
+
+</head>
+<body>
+    <h1>회원가입</h1>
+    <h3>경희대학교 학생 인증이 필요해요.</h3>
+    <br>
+    <br>
+    <h4>Q3. 국제캠퍼스 내 건물 명칭으로 옳지 않은 것은?</h4>
+    <div class="center">
+        <button type="button" class="answer-button" onclick="handleButtonClick('세화원')">세화원</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('선승관')">선승관</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('멀티미디어관')">멀티미디어관</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('우정원')">우정원</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('제2기숙사')">제2기숙사</button>
+    <div>
+</body>
+</html>

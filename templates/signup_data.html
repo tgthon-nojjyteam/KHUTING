@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>회원가입</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>회원가입</h1>
+    <div class="wrapper">
+        <svg class="animated-check" viewBox="0 0 24 24">
+            <path d="M4.1 12.7L9 17.6 20.3 6.3" fill="none" />
+        </svg>
+        <h3 id="certification">경희대학교 학생 인증이 완료되었어요.</h3>
+    </div>
+    <br>
+    <form action="/signup_data" method="POST">
+        <div class="form-group">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <input type="text" class="form-control" id="username" placeholder="이름" name="username"/>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <input type="text" class="form-control" id="userid" placeholder="아이디" name="userid"/>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11M5 11H19C20.1046 11 21 11.8954 21 13V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V13C3 11.8954 3.89543 11 5 11Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>      
+            <input type="password" class="form-control" id="password" placeholder="비밀번호(8자 이상, 영문자, 숫자, 특수문자 포함)" name="password"/>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11M5 11H19C20.1046 11 21 11.8954 21 13V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V13C3 11.8954 3.89543 11 5 11Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>       
+            <input type="password" class="form-control" id="password_confirm" placeholder="비밀번호를 다시 입력해주세요." name="password_confirm"/>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <div class="icon-wrapper">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <select id="gender" name="gender" class="form-control noto-sans-kr custom-select">
+                <option value="" disabled selected hidden>성별을 입력해주세요.</option>
+                <option value="남자">남자</option>
+                <option value="여자">여자</option>
+            </select>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <div class="icon-wrapper">
+                <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 7H19M1 1H19M1 13H19" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>    
+            </div>      
+            <select id="department" name="department" class="form-control noto-sans-kr custom-select">
+                <option value="" disabled selected hidden>학과를 입력해주세요.</option>
+                <option value="기계공학과">기계공학과</option>
+                <option value="산업경영공학과">산업경영공학과</option>
+                <option value="원자력공학과">원자력공학과</option>
+                <option value="화학공학과">화학공학과</option>
+                <option value="신소재공학과">신소재공학과</option>
+                <option value="사회기반시스템공학과">사회기반시스템공학과</option>
+                <option value="건축공학과">건축공학과</option>
+                <option value="환경학 및 환경공학과">환경학 및 환경공학과</option>
+                <option value="건축학과">건축학과</option>
+                <option value="전자공학과">전자공학과</option>
+                <option value="반도체공학과">반도체공학과</option>
+                <option value="생체의공학과">생체의공학과</option>
+                <option value="컴퓨터공학과">컴퓨터공학과</option>
+                <option value="인공지능학과">인공지능학과</option>
+                <option value="소프트웨어융합학과">소프트웨어융합학과</option>
+                <option value="응용수학과">응용수학과</option>
+                <option value="응용물리학과">응용물리학과</option>
+                <option value="응용화학과">응용화학과</option>
+                <option value="우주과학과">우주과학과</option>
+                <option value="유전생명공학과">유전생명공학과</option>
+                <option value="식품생명공학과">식품생명공학과</option>
+                <option value="융합바이오신소재공학과">융합바이오신소재공학과</option>
+                <option value="스마트팜과학과">스마트팜과학과</option>
+                <option value="국제학과">국제학과</option>
+                <option value="아시아학과">아시아학과</option>
+                <option value="프랑스어학과">프랑스어학과</option>
+                <option value="스페인어학과">스페인어학과</option>
+                <option value="러시아어학과">러시아어학과</option>
+                <option value="중국어학과">중국어학과</option>
+                <option value="일본어학과">일본어학과</option>
+                <option value="한국어학과">한국어학과</option>
+                <option value="글로벌커뮤니케이션학부">글로벌커뮤니케이션학부</option>
+                <option value="도예학과">도예학과</option>
+                <option value="산업디자인학과">산업디자인학과</option>
+                <option value="시각디자인학과">시각디자인학과</option>
+                <option value="환경조경디자인학과">환경조경디자인학과</option>
+                <option value="디지털콘텐츠학과">디지털콘텐츠학과</option>
+                <option value="의류디자인학과">의류디자인학과</option>
+                <option value="연극영화학과">연극영화학과</option>
+                <option value="PostModern음악학과">PostModern음악학과</option>
+                <option value="체육학과">체육학과</option>
+                <option value="스포츠지도학과">스포츠지도학과</option>
+                <option value="스포츠의학과">스포츠의학과</option>
+                <option value="골프산업학과">골프산업학과</option>
+                <option value="태권도학과">태권도학과</option>
+                <option value="자유전공학부">자유전공학부</option>
+            </select>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <div class="icon-wrapper">
+                <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 7H19M1 1H19M1 13H19" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>    
+            </div>
+            <select id="student_id" name="student_id" class="form-control noto-sans-kr custom-select">
+                <option value="" disabled selected hidden>학번을 입력해주세요.</option>
+                <option value="24">24</option>
+                <option value="23">23</option>
+                <option value="22">22</option>
+                <option value="21">21</option>
+                <option value="20">20</option>
+                <option value="기타">기타</option>
+            </select>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <div class="icon-wrapper">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 13C7 13 8.5 15 11 15C13.5 15 15 13 15 13M8 8H8.01M14 8H14.01M21 11C21 16.5228 16.5228 21 11 21C5.47715 21 1 16.5228 1 11C1 5.47715 5.47715 1 11 1C16.5228 1 21 5.47715 21 11Z" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>       
+            </div>
+            <select id="mbti" name="mbti" class="form-control noto-sans-kr custom-select">
+                <option value="" disabled selected hidden>MBTI를 입력해주세요.(선택)</option>
+                <option value="ISTJ">ISTJ</option>
+                <option value="ISFJ">ISFJ</option>
+                <option value="INFJ">INFJ</option>
+                <option value="INTJ">INTJ</option>
+                <option value="ISTP">ISTP</option>
+                <option value="ISFP">ISFP</option>
+                <option value="INFP">INFP</option>
+                <option value="INTP">INTP</option>
+                <option value="ESTP">ESTP</option>
+                <option value="ESFP">ESFP</option>
+                <option value="ENFP">ENFP</option>
+                <option value="ENTP">ENTP</option>
+                <option value="ESTJ">ESTJ</option>
+                <option value="ESFJ">ESFJ</option>
+                <option value="ENFJ">ENFJ</option>
+                <option value="ENTJ">ENTJ</option>
+            </select>
+        </div>
+        
+        <hr />
+        <br>
+        <button type="submit" class="btn btn-primary">완료</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var flashMessage = "{{ get_flashed_messages()[0] }}";
+            if (flashMessage) {
+                alert(flashMessage);
+            }
+        });
+
+    </script>
+
+</body>
+</html>

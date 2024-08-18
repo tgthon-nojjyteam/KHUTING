@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script> <!-- main.js 추가 -->
+    <script>
+
+        function handleButtonClick(answer) {
+            if (answer === '헐떡고개') {
+                alert('정답입니다! 다음 질문으로 넘어갑니다.');
+                correctC()
+            } else {
+                alert('오답입니다. 다음 질문으로 넘어갑니다.')
+            }
+
+            if (correctCount >= 4) {
+                alert("맞춘 개수는 " + correctCount + "/5 인증 성공");
+                location.href = '/email';
+            } else {
+                alert("맞춘 개수는 " + correctCount + "/5 인증 실패");
+                location.href = '/';
+
+            }
+            localStorage.setItem('correctCount', 0);
+        }
+    </script>
+
+</head>
+<body>
+    <h1>회원가입</h1>
+    <h3>경희대학교 학생 인증이 필요해요.</h3>
+    <br>
+    <br>
+    <h4>Q5. 교내 중앙도서관과 기숙사를 잇는 고개의 명칭으로 <br> 옳은 것은?</h4>
+    <div class="center">
+        <button type="button" class="answer-button" onclick="handleButtonClick('보릿고개')">보릿고개</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('죽어고개')">죽어고개</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('헐떡고개')">헐떡고개</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('떡헐고개')">떡헐고개</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('스무고개')">스무고개</button>
+    <div>
+</body>
+</html>

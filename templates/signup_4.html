@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script> <!-- main.js 추가 -->
+    <script>
+
+        function handleButtonClick(answer) {
+            if (answer === '집중열람실') {
+                alert('정답입니다! 다음 질문으로 넘어갑니다.');
+                correctC()
+            } else {
+                alert('오답입니다. 다음 질문으로 넘어갑니다.')
+            }
+            location.href = '/signup_5';
+        }
+
+        
+    </script>
+
+</head>
+<body>
+    <h1>회원가입</h1>
+    <h3>경희대학교 학생 인증이 필요해요.</h3>
+    <br>
+    <br>
+    <h4>Q4. 다음 중 국제캠퍼스 중앙도서관 내 시설 명칭이 <br>아닌 것은?</h4>
+    <div class="center">
+        <button type="button" class="answer-button" onclick="handleButtonClick('혜윰')">혜윰</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('제1열람실')">제1열람실</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('제2열람실')">제2열람실</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('벗터')">벗터</button>
+        <br>
+        <button type="button" class="answer-button" onclick="handleButtonClick('집중열람실')">집중열람실</button>
+    <div>
+</body>
+</html>
