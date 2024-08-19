@@ -60,6 +60,10 @@ h3 {
     margin-left: 10px;
 }
 
+.form-group {
+    position: relative;
+}
+
 .form-control {
     font-family: "Noto Sans KR", sans-serif;
     font-weight: 500;
@@ -107,4 +111,21 @@ hr {
 
 .flash-message.info {
     background-color: #17a2b8; /* 정보 메시지 배경색 */
+}
+
+.btn-primary {
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: -0.5px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #E25E5B;
+    color: white;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: 0;
+    display: block; /* 버튼이 블록 요소로 취급되어 오른쪽 정렬되도록 */
+    margin-top: 20px;
+    margin-right: 17px;
 }
