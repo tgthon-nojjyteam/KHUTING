@@ -55,7 +55,7 @@
                     },
                     error: function(error) {
                         // 에러 메시지를 페이지에 표시
-                        $('#match-status').text('매칭 실패: ' + (error.responseJSON.message || '알 수 없는 오류가 발생했습니다.'));
+                        $('#match-status').text((error.responseJSON.message || '알 수 없는 오류가 발생했습니다.'));
                     }
                 });
             });
@@ -72,7 +72,7 @@
                         $('#additional-button').html('<a href="http://192.168.100.213:5000" class="button">채팅방 이동</a>');
                     },
                     error: function(error) {
-                        $('#match-status').text('매칭 실패: ' + error.responseJSON.message);
+                        $('#match-status').text(error.responseJSON.message);
                     }
                 });
             });

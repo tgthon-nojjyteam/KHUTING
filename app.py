@@ -334,7 +334,7 @@ def match_teams():
     ).all()
 
     if not requested_teams:
-        return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요."}), 400
+        return jsonify({"message": "상대 팀을 찾고 있어요."}), 400
 
     # 랜덤으로 매칭할 팀 ID 선택
     random_team_id = random.choice([team_id[0] for team_id in requested_teams])
@@ -399,8 +399,6 @@ def fetch_matching_status():
         }
 
     return jsonify(matching_status)
-
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
