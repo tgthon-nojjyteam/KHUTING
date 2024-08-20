@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 from flask_migrate import Migrate
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -325,7 +326,7 @@ def match_teams():
     # 매칭 대기 중인 팀을 찾습니다
     requested_teams = db.session.query(Fcuser.team_id).distinct().filter(
         Fcuser.requested.is_(True),
-        Fcuser.matching.is_(None),  # None과 비교하기 위해 is_() 사용
+        or_(Fcuser.matching.is_(None), Fcuser.matching.is_(False)),
         Fcuser.team_id != current_team_id,
         Fcuser.gender != current_user_gender,  # 성별이 현재 팀과 다름
         Fcuser.department != current_user_department  # 학과가 현재 팀과 다름
@@ -367,6 +368,28 @@ def match_teams():
         })
     
     return jsonify({"message": "매칭이 실패했습니다. 대기 중입니다."})
+
+@app.route('/fetch_matching_status', methods=['GET'])
+@login_required
+def fetch_matching_status():
+    current_team_id = current_user.team_id
+
+    # 팀이 등록되어 있는지 확인
+    if not current_team_id:
+        return jsonify({"message": "팀 등록을 먼저 해주세요."}), 400
+
+    current_team_users = Fcuser.query.filter_by(team_id=current_team_id).all()
+    if not current_team_users:
+        return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
+
+    matching_status = {
+        "current_team": [user.userid for user in current_team_users],
+        "matching": all(user.matching for user in current_team_users),
+        "team_id": current_team_id
+    }
+
+    return jsonify(matching_status)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

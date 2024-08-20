@@ -18,6 +18,48 @@
                 window.location.href = "{{ url_for('logout') }}";
             }
         }
+
+        $(document).ready(function() {
+            // 페이지 로드 시 매칭 상태를 가져옵니다.
+            $.ajax({
+                url: '/fetch_matching_status',
+                method: 'GET',
+                success: function(response) {
+                    let message = '';
+                    if (response.matching) {
+                        message = '현재 팀 매칭 상태: 매칭 완료';
+                    } else {
+                        message = '현재 팀 매칭 상태: 매칭 대기 중';
+                    }
+                    $('#match-status').text(message);
+                },
+                error: function(error) {
+                    $('#match-status').text('매칭 상태를 가져오는 데 실패했습니다.');
+                }
+            });
+
+            $('#match-button').on('click', function() {
+                $.ajax({
+                    url: '/match_teams',
+                    method: 'POST',
+                    success: function(response) {
+                        // 서버 응답에 따라 결과를 페이지에 표시
+                        let message = '';
+                        if (response.current_team_result) {
+                            message += response.current_team_result + '<br>';
+                        }
+                        if (response.random_team_result) {
+                            message += response.random_team_result;
+                        }
+                        $('#result').html(message);
+                    },
+                    error: function(error) {
+                        // 에러 메시지를 페이지에 표시
+                        $('#result').text('매칭 실패: ' + (error.responseJSON.message || '알 수 없는 오류가 발생했습니다.'));
+                    }
+                });
+            });
+        });
     </script>
 </head>
 <body>
@@ -42,33 +84,6 @@
 
     <button id="match-button">매칭하기</button>
     <div id="result"></div>
-
-    <script>
-        $(document).ready(function() {
-            $('#match-button').on('click', function() {
-                $.ajax({
-                    url: '/match_teams',
-                    method: 'POST',
-                    success: function(response) {
-                        // 서버 응답에 따라 결과를 페이지에 표시
-                        let message = '';
-                        if (response.current_team_result) {
-                            message += response.current_team_result + '<br>';
-                        }
-                        if (response.random_team_result) {
-                            message += response.random_team_result;
-                        }
-                        $('#match-status').html(message);
-                    },
-                    error: function(error) {
-                        // 에러 메시지를 페이지에 표시
-                        $('#match-status').text('매칭 실패: ' + (error.responseJSON.message || '알 수 없는 오류가 발생했습니다.'));
-                    }
-                });
-            });
-        });
-    </script>
-    
 
     <div class="text-box">
         <div class="icon-text">
