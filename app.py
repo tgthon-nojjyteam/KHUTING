@@ -105,7 +105,7 @@ def signup_data():
         else:
 
             try:
-                hashed_password = generate_password_hash(password, method='sha256')
+                hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
                 unique_number = random.randint(1000, 9999)
                 profile_picture = f'{gender}1.png'
                 fcuser = Fcuser(
@@ -299,6 +299,7 @@ def email_verificiation():
         return render_template('email_verification.html', content="인증코드가 올바르지 않습니다")
 
 @app.route('/match_teams', methods=['POST'])
+@login_required
 def match_teams():
     current_team_id = current_user.team_id
 
@@ -333,7 +334,7 @@ def match_teams():
     ).all()
 
     if not requested_teams:
-        return jsonify({"message": "매칭 대기 중입니다."}), 400
+        return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요."}), 400
 
     # 랜덤으로 매칭할 팀 ID 선택
     random_team_id = random.choice([team_id[0] for team_id in requested_teams])
@@ -382,13 +383,23 @@ def fetch_matching_status():
     if not current_team_users:
         return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
 
-    matching_status = {
-        "current_team": [user.userid for user in current_team_users],
-        "matching": all(user.matching for user in current_team_users),
-        "team_id": current_team_id
-    }
+    # 매칭 요청 상태가 True인 경우에만 매칭 상태를 확인
+    if any(user.requested for user in current_team_users):
+        matching_status = {
+            "current_team": [user.userid for user in current_team_users],
+            "matching": all(user.matching for user in current_team_users),
+            "team_id": current_team_id
+        }
+    else:
+        matching_status = {
+            "current_team": [user.userid for user in current_team_users],
+            "matching": False,
+            "team_id": current_team_id,
+            "message": "매칭하기 버튼을 눌러 과팅을 시작해보세요."
+        }
 
     return jsonify(matching_status)
+
 
 
 if __name__ == '__main__':
