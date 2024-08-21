@@ -36,7 +36,6 @@ login_manager.login_view = 'login'
 
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
     members = db.relationship('Fcuser', backref='team', foreign_keys='Fcuser.team_id')
 
 class Fcuser(UserMixin, db.Model):
@@ -221,12 +220,12 @@ def team_register():
             flash("자신의 고유번호를 팀원으로 사용할 수 없습니다.")
             return redirect(url_for('team_register'))
 
-        existing_team = Team.query.filter(Team.members.contains(current_user)).first()
+        existing_team = Team.query.filter(Team.members.any(id=current_user.id)).first()
         if existing_team:
             flash("이미 팀에 등록되어 있습니다.")
             return redirect(url_for('index'))
 
-        new_team = Team()
+        new_team = Team()  # 이름 없이 팀 생성
 
         team_member_numbers = [user1_number, user2_number, str(current_user_number)]
 
@@ -248,13 +247,12 @@ def team_register():
             db.session.commit()
             flash("팀이 성공적으로 등록되었습니다.")
             return redirect(url_for('index')) 
-
         else:
             db.session.rollback()
             flash("팀원들의 학과와 성별이 일치하지 않습니다.")
-
+        
         return redirect(url_for('team_register'))
-    
+
     return render_template('team_register.html')
 
 @app.route("/email", methods=['POST', 'GET'])
@@ -376,7 +374,7 @@ def fetch_matching_status():
             current_team_department = current_team_users[0].department
 
             if matched_team_department != current_team_department:
-                message = f"{matched_team_department}과 매칭되었습니다! 팀 ID: {matched_team_id}"
+                message = f"{matched_team_department}와 매칭되었습니다! 팀 ID: {matched_team_id}"
             else:
                 message = "매칭이 완료되었습니다!"
             return jsonify({"message": message})
