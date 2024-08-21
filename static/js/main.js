@@ -51,6 +51,7 @@ $(document).ready(function() {
         success: function(response) {
             // 서버에서 받은 메시지에 따라 적절한 문구를 표시
             $('#match-status').text(response.message);
+
         },
         error: function(error) {
             $('#match-status').text('매칭 상태를 가져오는 데 실패했습니다.');
@@ -68,6 +69,8 @@ $(document).ready(function() {
                     message += response.current_team_result;
                 }
                 $('#match-status').html(message);
+                $('#match-button').hide();
+
             },
             error: function(error) {
                 // 에러 메시지를 페이지에 표시
