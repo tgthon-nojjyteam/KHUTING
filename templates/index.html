@@ -40,9 +40,32 @@
 
     <h3>{{ user.username }} {{ user.department }} #{{ user.unique_number }}</h3>
 
-    {% if not matching %}
-        <button id="match-button">매칭하기</button>
+    {% if not requested %}
+        <button id="match-button" >매칭하기</button>
     {% endif %}
+    {% if requested and not matching %}
+        <button id="cancel-button" >취소하기</button>
+    {% endif %}
+
+    <script>
+        var teamId = "{{ team_id }}"
+        console.log('teamId:', teamId);
+        function change_button() {
+            const button = document.getElementById('match-button');
+            if (teamId !== 'null' && teamId !== 'undefined' && teamId.trim() !== '') {
+                if (button.innerText === '매칭하기') {
+                    // 매칭 성공 처리 로직 (예: 서버에 요청, 조건 검증 등)
+                    // 매칭에 성공했을 때 버튼 텍스트를 변경
+                    button.innerText = '취소하기';
+                } else {
+                    // 매칭 취소 처리 로직 (예: 서버에 요청, 조건 검증 등)
+                    // 취소하기를 눌렀을 때 버튼 텍스트를 원래대로 변경
+                    button.innerText = '매칭하기';
+                }
+            }
+        }
+    </script>
+
     <div class="text-box">
         <div class="icon-text">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

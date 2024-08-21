@@ -70,7 +70,6 @@ $(document).ready(function() {
                 }
                 $('#match-status').html(message);
                 $('#match-button').hide();
-
             },
             error: function(error) {
                 // 에러 메시지를 페이지에 표시

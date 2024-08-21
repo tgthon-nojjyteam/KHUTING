@@ -200,7 +200,7 @@ def index():
     user = current_user
     team = Team.query.get(user.team_id) if user.team_id else None
     team_members = Team.query.get(user.team_id).members if team else []
-    return render_template('index.html', user=user, team_members=team_members,team_id=user.team_id, matching=user.matching)
+    return render_template('index.html', user=user, team_members=team_members,team_id=user.team_id, matching=user.matching,requested=user.requested)
 
 @app.route('/settings')
 def settings():
