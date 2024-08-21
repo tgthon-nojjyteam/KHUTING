@@ -36,8 +36,8 @@ login_manager.login_view = 'login'
 
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    members = db.relationship('Fcuser', backref='team', lazy=True)
-    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=True)
+    name = db.Column(db.String(80), nullable=False)
+    members = db.relationship('Fcuser', backref='team', foreign_keys='Fcuser.team_id')
 
 class Fcuser(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,6 +54,7 @@ class Fcuser(UserMixin, db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=True)
     matching = db.Column(db.Boolean, default=False)
     requested = db.Column(db.Boolean, default=False)
+    matched_team_id = db.Column(db.Integer, nullable=True)  # 매칭된 팀 ID
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -303,79 +304,63 @@ def email_verificiation():
 def match_teams():
     current_team_id = current_user.team_id
 
-    # 현재 사용자가 팀 등록이 되어 있는지 확인
     if not current_team_id:
         return jsonify({"message": "팀 등록을 먼저 해주세요."}), 400
 
-    # 현재 팀의 성별과 학과를 가져옵니다
     current_team_users = Fcuser.query.filter_by(team_id=current_team_id).all()
     if not current_team_users:
         return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
     current_user_gender = current_team_users[0].gender
     current_user_department = current_team_users[0].department
 
-    # 현재 사용자의 요청 상태를 업데이트
     current_user.requested = True
     db.session.add(current_user)
     
-    # 현재 팀의 모든 팀원도 requested를 True로 업데이트
     for user in current_team_users:
         user.requested = True
         db.session.add(user)
     db.session.commit()
 
-    # 매칭 대기 중인 팀을 찾습니다
     requested_teams = db.session.query(Fcuser.team_id).distinct().filter(
         Fcuser.requested.is_(True),
         or_(Fcuser.matching.is_(None), Fcuser.matching.is_(False)),
         Fcuser.team_id != current_team_id,
-        Fcuser.gender != current_user_gender,  # 성별이 현재 팀과 다름
-        Fcuser.department != current_user_department  # 학과가 현재 팀과 다름
+        Fcuser.gender != current_user_gender,
+        Fcuser.department != current_user_department
     ).all()
 
     if not requested_teams:
         return jsonify({"message": "상대 팀을 찾고 있어요."}), 400
 
-    # 랜덤으로 매칭할 팀 ID 선택
     random_team_id = random.choice([team_id[0] for team_id in requested_teams])
-
-    # 랜덤 팀의 모든 사용자 조회
     users_in_random_team = Fcuser.query.filter_by(team_id=random_team_id).all()
 
     if not users_in_random_team:
         return jsonify({"message": "랜덤 팀의 정보를 찾을 수 없습니다."}), 400
 
-    # 현재 팀 및 랜덤 팀의 모든 사용자 matching을 True로 업데이트
     for user in current_team_users:
         user.matching = True
+        user.matched_team_id = random_team_id
         db.session.add(user)
     
     for user in users_in_random_team:
         user.matching = True
+        user.matched_team_id = current_team_id
         db.session.add(user)
     
     db.session.commit()
 
-    # 매칭 상태 확인
-    if any(user.matching for user in current_team_users) and any(user.matching for user in users_in_random_team):
-        # 결과 포맷
-        current_team_department = current_team_users[0].department
-        random_team_department = users_in_random_team[0].department
+    matched_result_current_team = f"{users_in_random_team[0].department}와 매칭되었습니다! 팀 ID: {random_team_id}"
 
-        matched_result_current_team = f"{random_team_department}와 매칭되었습니다! 팀 ID: {random_team_id}"
-
-        return jsonify({
-            "current_team_result": matched_result_current_team
-        })
-    
-    return jsonify({"message": "매칭이 실패했습니다. 대기 중입니다."})
+    return jsonify({
+        "current_team_result": matched_result_current_team
+    })
 
 @app.route('/fetch_matching_status', methods=['GET'])
 @login_required
 def fetch_matching_status():
     current_team_id = current_user.team_id
 
-    # 팀이 등록되어 있는지 확인
     if not current_team_id:
         return jsonify({"message": "팀 등록을 먼저 해주세요."}), 400
 
@@ -383,22 +368,22 @@ def fetch_matching_status():
     if not current_team_users:
         return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
 
-    # 매칭 요청 상태가 True인 경우에만 매칭 상태를 확인
     if any(user.requested for user in current_team_users):
-        matching_status = {
-            "current_team": [user.userid for user in current_team_users],
-            "matching": all(user.matching for user in current_team_users),
-            "team_id": current_team_id
-        }
+        if any(user.matching for user in current_team_users):
+            matched_team_id = next((user.matched_team_id for user in current_team_users if user.matching), None)
+            matched_team_users = Fcuser.query.filter_by(team_id=matched_team_id).all()
+            matched_team_department = matched_team_users[0].department if matched_team_users else "알 수 없음"
+            current_team_department = current_team_users[0].department
+
+            if matched_team_department != current_team_department:
+                message = f"{matched_team_department}과 매칭되었습니다! 팀 ID: {matched_team_id}"
+            else:
+                message = "매칭이 완료되었습니다!"
+            return jsonify({"message": message})
+        else:
+            return jsonify({"message": "상대 팀을 찾고 있어요."})
     else:
-        matching_status = {
-            "current_team": [user.userid for user in current_team_users],
-            "matching": False,
-            "team_id": current_team_id,
-            "message": "매칭하기 버튼을 눌러 과팅을 시작해보세요."
-        }
-
-    return jsonify(matching_status)
-
+        return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요"})
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
