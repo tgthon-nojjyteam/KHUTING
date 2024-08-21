@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     showSlide(currentIndex); // 초기 슬라이드 표시
 });
 
+// 랜덤 매칭
 $(document).ready(function() {
     // 페이지 로드 시 매칭 상태를 가져옵니다.
     $.ajax({
@@ -56,10 +57,17 @@ $(document).ready(function() {
             buttonContainer.empty();
 
             if (response.matching) {
+                // 매칭 완료 상태일 때 매칭 완료 버튼과 채팅방 이동 버튼을 추가
                 buttonContainer.html('<button id="completed-button">매칭 완료</button>');
+                $('#match-status').append('<button id="chat-button">채팅방으로 이동하기</button>');
+               
+                // 채팅방 버튼 클릭 이벤트 핸들러 추가
+                $('#chat-button').on('click', function() {
+                    // 채팅방 URL을 설정하세요. 예를 들어, /chatroom 또는 다른 경로로 설정
+                    window.location.href = '/chatroom';
+                });
             } else if (response.requested && !response.matching) {
                 buttonContainer.html('<button id="cancel-button">매칭 취소하기</button>');
-                // 클릭 이벤트 핸들러를 버튼이 HTML에 추가된 후에 설정합니다.
                 $('#cancel-button').on('click', function() {
                     $.ajax({
                         url: '/cancel_match',
@@ -75,7 +83,6 @@ $(document).ready(function() {
                 });
             } else if (!response.requested) {
                 buttonContainer.html('<button id="match-button">매칭하기</button>');
-                // 클릭 이벤트 핸들러를 버튼이 HTML에 추가된 후에 설정합니다.
                 $('#match-button').on('click', function() {
                     $.ajax({
                         url: '/match_teams',
@@ -100,6 +107,3 @@ $(document).ready(function() {
         }
     });
 });
-
-
-
