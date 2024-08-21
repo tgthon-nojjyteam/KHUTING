@@ -14,7 +14,7 @@ import string
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1910@localhost/userinfo'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=1)
@@ -348,7 +348,7 @@ def match_teams():
     
     db.session.commit()
 
-    matched_result_current_team = f"{users_in_random_team[0].department}와 매칭되었습니다! 팀 ID: {random_team_id}"
+    matched_result_current_team = f"{users_in_random_team[0].department}와 매칭되었습니다!"
 
     return jsonify({
         "current_team_result": matched_result_current_team
@@ -366,22 +366,52 @@ def fetch_matching_status():
     if not current_team_users:
         return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
 
-    if any(user.requested for user in current_team_users):
-        if any(user.matching for user in current_team_users):
-            matched_team_id = next((user.matched_team_id for user in current_team_users if user.matching), None)
-            matched_team_users = Fcuser.query.filter_by(team_id=matched_team_id).all()
-            matched_team_department = matched_team_users[0].department if matched_team_users else "알 수 없음"
-            current_team_department = current_team_users[0].department
+    # Check if any user in the current team has requested a match
+    requested = any(user.requested for user in current_team_users)
+    
+    # Check if any user in the current team has been matched
+    matching = any(user.matching for user in current_team_users)
 
-            if matched_team_department != current_team_department:
-                message = f"{matched_team_department}와 매칭되었습니다! 팀 ID: {matched_team_id}"
-            else:
-                message = "매칭이 완료되었습니다!"
-            return jsonify({"message": message})
+    if matching:
+        # Find the matched team ID
+        matched_team_id = next((user.matched_team_id for user in current_team_users if user.matching), None)
+        matched_team_users = Fcuser.query.filter_by(team_id=matched_team_id).all()
+        matched_team_department = matched_team_users[0].department if matched_team_users else "알 수 없음"
+        current_team_department = current_team_users[0].department
+
+        if matched_team_department != current_team_department:
+            message = f"<span class='matched-department'>{matched_team_department}</span>와 매칭되었습니다!"
         else:
-            return jsonify({"message": "상대 팀을 찾고 있어요."})
-    else:
-        return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요"})
+            message = "매칭이 완료되었습니다!"
+        return jsonify({"message": message, "requested": requested, "matching": matching})
+    
+    # No matching but requested
+    if requested:
+        return jsonify({"message": "상대 팀을 찾고 있어요.", "requested": requested, "matching": matching})
+    
+    # Not requested
+    return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요", "requested": requested, "matching": matching})
+
+@app.route('/cancel_match', methods=['POST'])
+@login_required
+def cancel_match():
+    current_team_id = current_user.team_id
+
+    if not current_team_id:
+        return jsonify({"message": "팀 등록을 먼저 해주세요."}), 400
+
+    current_team_users = Fcuser.query.filter_by(team_id=current_team_id).all()
+    if not current_team_users:
+        return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
+
+    # 요청 상태를 취소합니다.
+    for user in current_team_users:
+        user.requested = False
+        db.session.add(user)
+    
+    db.session.commit()
+
+    return jsonify({"message": "매칭 요청이 취소되었습니다."})
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
