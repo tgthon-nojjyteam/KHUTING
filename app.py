@@ -14,7 +14,7 @@ import string
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1910@localhost/userinfo'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=1)
@@ -36,7 +36,6 @@ login_manager.login_view = 'login'
 
 class Team(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
     members = db.relationship('Fcuser', backref='team', foreign_keys='Fcuser.team_id')
 
 class Fcuser(UserMixin, db.Model):
@@ -201,7 +200,7 @@ def index():
     user = current_user
     team = Team.query.get(user.team_id) if user.team_id else None
     team_members = Team.query.get(user.team_id).members if team else []
-    return render_template('index.html', user=user, team_members=team_members)
+    return render_template('index.html', user=user, team_members=team_members,team_id=user.team_id, matching=user.matching)
 
 @app.route('/settings')
 def settings():

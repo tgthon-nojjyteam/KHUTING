@@ -40,8 +40,9 @@
 
     <h3>{{ user.username }} {{ user.department }} #{{ user.unique_number }}</h3>
 
-    <button id="match-button">매칭하기</button>
-
+    {% if not matching %}
+        <button id="match-button">매칭하기</button>
+    {% endif %}
     <div class="text-box">
         <div class="icon-text">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
