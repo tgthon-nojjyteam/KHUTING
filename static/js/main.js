@@ -63,7 +63,6 @@ $(document).ready(function() {
                
                 // 채팅방 버튼 클릭 이벤트 핸들러 추가
                 $('#chat-button').on('click', function() {
-                    // 채팅방 URL을 설정하세요. 예를 들어, /chatroom 또는 다른 경로로 설정
                     window.location.href = '/chatroom';
                 });
             } else if (response.requested && !response.matching) {

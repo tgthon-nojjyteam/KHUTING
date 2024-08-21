@@ -1,0 +1,110 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "Noto Sans KR", sans-serif;
+    letter-spacing: -0.5px;
+    overflow:hidden;
+}
+.noto-sans-kr {
+    font-family: "Noto Sans KR", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.shape {
+    width: 100%;
+    height: 140px;
+    background-color: #32425C;
+   
+}
+
+.logo {
+    position: absolute;
+    margin-top: 10px;
+    margin-left: 10px;
+    width: 30%;
+    max-width: 150px;
+}
+
+#matched-department {
+    font-weight: 600;
+    text-align: center;
+    margin-top: -60px;
+    color: #ffffff;
+    font-size: 18px;
+}
+
+#chat-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 130px);
+    padding: 5px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#chat {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #ffffff;
+    margin-bottom: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+#input-container {
+    display: flex;
+    gap: 10px;
+}
+
+#userName, #myMessage {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 16px;
+}
+
+button {
+    width: 50px; 
+    height: 50px;
+    padding: 10px;
+    border: none;
+    border-radius: 50%;
+    background-color: #e2525b;
+    color: #fff;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #e2525b;
+}
+
+.message {
+    margin-bottom: 10px;
+}
+.message.mine {
+    text-align: right;
+}
+.message.theirs {
+    text-align: left;
+}
+.message .username {
+    font-weight: bold;
+    display: block;
+}
+.message .text {
+    display: inline;
+}

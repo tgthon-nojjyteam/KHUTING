@@ -6,6 +6,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 from flask_mail import Mail, Message
+from flask_socketio import SocketIO
 
 import re
 import os
@@ -13,6 +14,7 @@ import random
 import string
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -381,9 +383,10 @@ def fetch_matching_status():
 
         if matched_team_department != current_team_department:
             message = f"<span class='matched-department'>{matched_team_department}</span>와 매칭되었습니다!"
+            chat_message = f"{matched_team_department}와 대화중이에요."
         else:
             message = "매칭이 완료되었습니다!"
-        return jsonify({"message": message, "requested": requested, "matching": matching})
+        return jsonify({"message": message, "chat_message": chat_message, "requested": requested, "matching": matching})
     
     # No matching but requested
     if requested:
@@ -412,6 +415,22 @@ def cancel_match():
     db.session.commit()
 
     return jsonify({"message": "매칭 요청이 취소되었습니다."})
+
+@app.route('/chatroom')
+def chatroom():
+    return render_template('chatroom.html')
+
+@socketio.on('send_message')
+def handle_message(data):
+    print('Received message:', data)
+    socketio.emit('receive_message', data)
+
+@app.route('/get_user_info', methods=['GET'])
+@login_required
+def get_user_info():
+    user = current_user
+    return jsonify({'username': user.username})
+
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
