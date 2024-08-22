@@ -170,6 +170,7 @@ def profile():
 @login_required
 def logout():
     logout_user()
+    session.pop('_flashes', None)
     return redirect(url_for('start'))
 
 @app.route('/')
@@ -256,6 +257,23 @@ def team_register():
         return redirect(url_for('team_register'))
 
     return render_template('team_register.html')
+
+@app.route('/team_leave', methods=['POST'])
+@login_required
+def team_leave():
+    # 현재 사용자가 속한 팀을 가져옵니다.
+    team = Team.query.filter(Team.members.any(id=current_user.id)).first()
+
+    if not team:
+        flash("현재 팀에 속해있지 않습니다.")
+        return redirect(url_for('index'))
+
+    # 팀 삭제
+    db.session.delete(team)
+    db.session.commit()
+
+    flash("팀이 성공적으로 삭제되었습니다.")
+    return redirect(url_for('index'))
 
 @app.route("/email", methods=['POST', 'GET'])
 def email():
