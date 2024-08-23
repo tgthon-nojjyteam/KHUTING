@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
 
-    <title>Chat Room</title>
+    <title>채팅방</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> <!-- CSS 파일 링크 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 </head>
@@ -14,103 +13,112 @@
         <img src="{{ url_for('static', filename='images/logo_horizontal.png') }}" alt="Logo" class="logo">
     </div>
     <p id="matched-department"><span id="department-name">로딩 중...</span></p>
-    <div id="chat-container">
+
+    <div id = "chat-container">
         <div id="chat">
             <div id="messages"></div>
             <div id="input-container">
-                <input type="text" id="myMessage" placeholder="메시지를 입력하세요.">
-                <button onclick="sendMessage()">
-                    <svg width="21" height="21" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g clip-path="url(#clip0_29_2987)">
-                    <path d="M18.3333 1.66669L9.16666 10.8334M18.3333 1.66669L12.5 18.3334L9.16666 10.8334M18.3333 1.66669L1.66666 7.50002L9.16666 10.8334" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </g>
-                    <defs>
-                    <clipPath id="clip0_29_2987">
-                    <rect width="20" height="20" fill="white"/>
-                    </clipPath>
-                    </defs>
-                    </svg>
-                </button>
+                <input type="text" id="message-input" placeholder="메시지를 입력하세요">
+                <button id="send-button">전송</button>
             </div>
         </div>
     </div>
 
     <script>
-        // 입력 필드가 포커스되었을 때 페이지가 확대되지 않도록 설정
-        document.addEventListener('focusin', function(event) {
-            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-                document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-            }
-        });
-    
-        document.addEventListener('focusout', function(event) {
-            if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
-                document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0');
-            }
-        });
-    </script>
-    
-
-    <script type="text/javascript">
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
-        var userName = '';
-
-        // 서버에서 사용자 이름을 가져오기
-        function fetchUserName() {
-            return fetch('/get_user_info')
+        // 페이지 로드 시 사용자 정보와 채팅방 정보를 서버로부터 가져오는 함수
+        function initializeChat() {
+            fetch('/get_user_info')
                 .then(response => response.json())
                 .then(data => {
-                    userName = data.username;
-                    return userName;
+                    var userName = data.user_name;
+                    var chatRoom = data.chat_room;
+
+                    // 메시지 폴링 및 메시지 전송 함수 호출
+                    pollMessages(userName, chatRoom);
+                    setupSendMessage(userName, chatRoom);
                 })
                 .catch(error => {
                     console.error('Error fetching user info:', error);
-                    userName = 'Unknown'; // 오류 발생 시 기본값
-                    return userName;
                 });
         }
 
-        // 서버로부터 메시지를 수신하여 화면에 출력
-        socket.on('receive_message', function(data) {
-            var messages = document.getElementById('messages');
-            var newMessage = document.createElement('div');
-            newMessage.classList.add('message', data.userName === userName ? 'mine' : 'theirs');
-            
-            // 본인 메시지는 이름을 제외하고 출력
-            if (data.userName !== userName) {
-                newMessage.innerHTML = '<span class="username">' + data.userName + '</span><span class="text">' + data.message + '</span>';
+        // 메시지 폴링 함수
+        function pollMessages(userName, chatRoom) {
+            fetch(`/receive_message/${chatRoom}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (Array.isArray(data)) {
+                        data.forEach(msg => {
+                            displayMessage(msg.user, msg.message);
+                        });
+                    }
+                    setTimeout(() => pollMessages(userName, chatRoom), 1000); // 1초 후 다시 폴링
+                })
+                .catch(error => {
+                    console.error('Error receiving message:', error);
+                    setTimeout(() => pollMessages(userName, chatRoom), 5000); // 오류 발생 시 5초 후 재시도
+                });
+        }
+
+        // 메시지를 화면에 출력하는 함수
+        function displayMessage(userName, message) {
+            var messagesDiv = document.getElementById('messages');
+            if (messagesDiv) {
+                var newMessage = document.createElement('div');
+                newMessage.textContent = `${userName}: ${message}`;
+                messagesDiv.appendChild(newMessage);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight; // 최신 메시지가 보이도록 스크롤
             } else {
-                newMessage.innerHTML = '<span class="text">' + data.message + '</span>';
+                console.error('Messages div not found');
             }
-            
-            messages.appendChild(newMessage);
-            messages.scrollTop = messages.scrollHeight; // 항상 최신 메시지가 보이도록 스크롤
-        });
+        }
 
         // 메시지 전송 함수
-        function sendMessage() {
-            fetchUserName().then(() => {
-                var message = document.getElementById('myMessage').value;
+        function setupSendMessage(userName, chatRoom) {
+            var sendButton = document.getElementById('send-button');
+            sendButton.addEventListener('click', function() {
+                var messageInput = document.getElementById('message-input');
+                var message = messageInput.value;
                 if (message) {
-                    socket.emit('send_message', { userName: userName, message: message });  // 서버로 사용자 이름과 메시지 전송
-                    document.getElementById('myMessage').value = ''; // 메시지 전송 후 입력 필드 비우기
+                    fetch('/send_message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ from: userName, room: chatRoom, message: message })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'Message received') {
+                            messageInput.value = ''; // 메시지 전송 후 입력 필드 비우기
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error sending message:', error);
+                    });
                 } else {
-                    alert('Please enter a message.');
+                    alert('메시지를 입력해주세요.');
                 }
             });
         }
 
         window.onload = function() {
+            // 사용자 정보 및 채팅 설정 초기화
+            initializeChat();
+
+            // 매칭 상태 가져오기
             fetch('/fetch_matching_status')
                 .then(response => response.json())
                 .then(data => {
                     var matchedDepartmentElement = document.getElementById('matched-department');
-                    matchedDepartmentElement.innerHTML = data.chat_message; // Use innerHTML to retain HTML tags
+                    if (matchedDepartmentElement) {
+                        matchedDepartmentElement.innerHTML = data.chat_message; // HTML 태그 유지
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching matching status:', error);
                 });
-        }
+        };
     </script>
 </body>
 </html>
