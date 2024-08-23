@@ -475,4 +475,4 @@ def get_user_info():
     return jsonify({'user_id': user.userid, 'user_name': user.username, 'chat_room': f'room{user.team_id}'})
     
 if __name__ == '__main__':
-    application.run()
+    application.run(host='0.0.0.0')
