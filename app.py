@@ -437,8 +437,38 @@ def cancel_match():
     return jsonify({"message": "매칭 요청이 취소되었습니다."})
 
 @application.route('/chatroom')
+@login_required
 def chatroom():
-    return render_template('chatroom.html')
+    user = current_user
+    matched_team_members = []
+    
+    # 본인 팀의 멤버들
+    team_members = []
+    if user.team_id:
+        team = Team.query.get(user.team_id)
+        if team:
+            team_members = team.members
+    
+    # 매칭된 팀의 멤버들
+    if user.matched_team_id:
+        matched_team = Team.query.get(user.matched_team_id)
+        if matched_team:
+            # 팀원들을 학과별로 그룹화합니다.
+            department_dict = defaultdict(list)
+            for member in matched_team.members:
+                department_dict[member.department].append(member)
+
+            # 본인 팀과 매칭된 팀을 통합하여 학과별로 3명씩 추출합니다.
+            for members in department_dict.values():
+                matched_team_members.extend(members[:3])
+                
+            # 최대 6명까지만 전달
+            matched_team_members = matched_team_members[:6]
+    
+    # 본인 팀 멤버도 포함하여 최대 6명까지만 전달
+    final_members = sorted(set(team_members) | set(matched_team_members), key=lambda x: x.id)[:6]
+
+    return render_template('chatroom.html', matched_team_members=final_members)
 
 # 채팅방과 메시지 매핑
 chat_rooms = defaultdict(lambda: defaultdict(list))

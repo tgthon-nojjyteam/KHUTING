@@ -2,19 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
     <title>채팅방</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> <!-- CSS 파일 링크 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/chatroom.js') }}"></script>
 </head>
 <body>
     <div class="shape">
         <img src="{{ url_for('static', filename='images/logo_horizontal.png') }}" alt="Logo" class="logo">
+        <img src="{{ url_for('static', filename='images/menu.png') }}" alt="Menu" class="menu-button" id="menu-button">
     </div>
     <p id="matched-department"><span id="department-name">로딩 중...</span></p>
 
-    <div id = "chat-container">
+    <div id="chat-container">
         <div id="chat">
             <div id="messages"></div>
             <div id="input-container">
@@ -24,101 +26,28 @@
         </div>
     </div>
 
-    <script>
-        // 페이지 로드 시 사용자 정보와 채팅방 정보를 서버로부터 가져오는 함수
-        function initializeChat() {
-            fetch('/get_user_info')
-                .then(response => response.json())
-                .then(data => {
-                    var userName = data.user_name;
-                    var chatRoom = data.chat_room;
+    <div id="overlay" class="overlay"></div>
 
-                    // 메시지 폴링 및 메시지 전송 함수 호출
-                    pollMessages(userName, chatRoom);
-                    setupSendMessage(userName, chatRoom);
-                })
-                .catch(error => {
-                    console.error('Error fetching user info:', error);
-                });
-        }
-
-        // 메시지 폴링 함수
-        function pollMessages(userName, chatRoom) {
-            fetch(`/receive_message/${chatRoom}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (Array.isArray(data)) {
-                        data.forEach(msg => {
-                            displayMessage(msg.user, msg.message);
-                        });
-                    }
-                    setTimeout(() => pollMessages(userName, chatRoom), 1000); // 1초 후 다시 폴링
-                })
-                .catch(error => {
-                    console.error('Error receiving message:', error);
-                    setTimeout(() => pollMessages(userName, chatRoom), 5000); // 오류 발생 시 5초 후 재시도
-                });
-        }
-
-        // 메시지를 화면에 출력하는 함수
-        function displayMessage(userName, message) {
-            var messagesDiv = document.getElementById('messages');
-            if (messagesDiv) {
-                var newMessage = document.createElement('div');
-                newMessage.textContent = `${userName}: ${message}`;
-                messagesDiv.appendChild(newMessage);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight; // 최신 메시지가 보이도록 스크롤
-            } else {
-                console.error('Messages div not found');
-            }
-        }
-
-        // 메시지 전송 함수
-        function setupSendMessage(userName, chatRoom) {
-            var sendButton = document.getElementById('send-button');
-            sendButton.addEventListener('click', function() {
-                var messageInput = document.getElementById('message-input');
-                var message = messageInput.value;
-                if (message) {
-                    fetch('/send_message', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ from: userName, room: chatRoom, message: message })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'Message received') {
-                            messageInput.value = ''; // 메시지 전송 후 입력 필드 비우기
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error sending message:', error);
-                    });
-                } else {
-                    alert('메시지를 입력해주세요.');
-                }
-            });
-        }
-
-        window.onload = function() {
-            // 사용자 정보 및 채팅 설정 초기화
-            initializeChat();
-
-            // 매칭 상태 가져오기
-            fetch('/fetch_matching_status')
-                .then(response => response.json())
-                .then(data => {
-                    var matchedDepartmentElement = document.getElementById('matched-department');
-                    if (matchedDepartmentElement) {
-                        matchedDepartmentElement.innerHTML = data.chat_message; // HTML 태그 유지
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching matching status:', error);
-                });
-        };
-    </script>
+    <div id="side-menu" class="side-menu">
+        <div class="menu-content">
+            <span id="close-menu" class="close">&times;</span>
+            <h3>대화 상대</h3>
+            <ul class="member-list">
+                {% set current_department = None %}
+                {% for member in matched_team_members %}
+                    {% if current_department != member.department %}
+                        {% if current_department is not none %}
+                            <li class="divider"></li>
+                        {% endif %}
+                        <li class="department-header">{{ member.department }}</li>
+                        {% set current_department = member.department %}
+                    {% endif %}
+                    <li class="member-item">
+                        {{ member.username }} ({{ member.department }})
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </body>
 </html>
