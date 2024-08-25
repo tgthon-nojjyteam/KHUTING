@@ -11,22 +11,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
 </head>
 
-  <body>
-    <h1>설정</h1>
-    <form id="leave-team-form" action="{{ url_for('team_leave') }}" method="POST" style="display: none;">
+<body>
+  <h1>설정</h1>
+  <form id="leave-team-form" action="{{ url_for('team_leave') }}" method="POST" style="display: none;">
 
-    </form>
+  </form>
   
-    <button id="leave-team-button" class="btn btn-danger">팀 나가기</button>
+  <button id="leave-team-button" class="btn btn-danger">팀 나가기</button>
   
-    <script>
-    document.getElementById('leave-team-button').onclick = function() {
-        if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
-            document.getElementById('leave-team-form').submit();
-        }
-    };
-    </script>
-  
-
+  <script>
+  document.getElementById('leave-team-button').onclick = function() {
+      if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
+          document.getElementById('leave-team-form').submit();
+      }
+  };
+  </script>
+  <a href="{{ url_for('delete_account') }}" onclick="return confirm('정말로 탈퇴하시겠습니까?');">회원탈퇴</a>
   </body>
 </html>
