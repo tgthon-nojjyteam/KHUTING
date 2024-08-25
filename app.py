@@ -260,22 +260,28 @@ def team_register():
 
     return render_template('team_register.html')
 
-@application.route('/team_leave', methods=['POST'])
+@application.route('/team_leave', methods=['GET','POST'])
 @login_required
 def team_leave():
     # 현재 사용자가 속한 팀을 가져옵니다.
     team = Team.query.filter(Team.members.any(id=current_user.id)).first()
 
-    if not team:
-        flash("현재 팀에 속해있지 않습니다.")
-        return redirect(url_for('index'))
+    if request.method == 'POST':
+        if not team:
+            flash("등록된 팀이 없습니다.")
+            return redirect(url_for('settings'))
 
-    # 팀 삭제
-    db.session.delete(team)
-    db.session.commit()
+        # 팀 삭제
+        db.session.delete(team)
+        db.session.commit()
 
-    flash("팀이 성공적으로 삭제되었습니다.")
-    return redirect(url_for('index'))
+        flash("팀이 성공적으로 삭제되었습니다.")
+        return redirect(url_for('settings'))
+
+    # 팀 존재 여부를 템플릿에 전달
+    team_exists = team is not None
+
+    return render_template('settings.html', team_exists=team_exists)
 
 @application.route("/email", methods=['POST', 'GET'])
 def email():

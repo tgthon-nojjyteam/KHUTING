@@ -11,22 +11,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
 </head>
 
-  <body>
+<body>
     <h1>설정</h1>
-    <form id="leave-team-form" action="{{ url_for('team_leave') }}" method="POST" style="display: none;">
 
+    <!-- 항상 표시되는 버튼과 폼 -->
+    <form id="leave-team-form" action="{{ url_for('team_leave') }}" method="POST" style="display: none;">
     </form>
   
-    <button id="leave-team-button" class="btn btn-danger">팀 나가기</button>
-  
-    <script>
-    document.getElementById('leave-team-button').onclick = function() {
-        if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
-            document.getElementById('leave-team-form').submit();
-        }
-    };
-    </script>
-  
+    <!-- 버튼에 팀 존재 여부를 data 속성으로 전달 -->
+    <button id="leave-team-button" class="btn btn-danger" data-team-exists="{{ team_exists }}">팀 나가기</button>
 
-  </body>
+    <script>
+        document.getElementById('leave-team-button').onclick = function() {
+            // 버튼의 data-team-exists 속성 값을 가져옵니다
+            var teamExists = this.getAttribute('data-team-exists') === 'True';
+
+            if (teamExists) {
+                if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
+                    document.getElementById('leave-team-form').submit();
+                }
+            } else {
+                alert('등록된 팀이 없습니다.');
+            }
+        };
+    </script>
+
+</body>
 </html>
