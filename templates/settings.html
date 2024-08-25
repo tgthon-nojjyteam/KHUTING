@@ -16,15 +16,15 @@
 
     <!-- 항상 표시되는 버튼과 폼 -->
     <form id="leave-team-form" action="{{ url_for('team_leave') }}" method="POST" style="display: none;">
+        <input type="hidden" name="team_id" value="{{ team_id }}">
     </form>
   
     <!-- 버튼에 팀 존재 여부를 data 속성으로 전달 -->
-    <button id="leave-team-button" class="btn btn-danger" data-team-exists="{{ team_exists }}">팀 나가기</button>
+    <button id="leave-team-button" class="btn btn-danger" data-team-exists="{{ team_exists|lower }}">팀 나가기</button>
 
     <script>
         document.getElementById('leave-team-button').onclick = function() {
-            // 버튼의 data-team-exists 속성 값을 가져옵니다
-            var teamExists = this.getAttribute('data-team-exists') === 'True';
+            var teamExists = this.getAttribute('data-team-exists') === 'true';
 
             if (teamExists) {
                 if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
@@ -35,6 +35,6 @@
             }
         };
     </script>
-
+    <a href="{{ url_for('delete_account') }}" onclick="return confirm('정말로 탈퇴하시겠습니까?');">회원탈퇴</a>
 </body>
 </html>
