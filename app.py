@@ -18,7 +18,7 @@ import threading
 application = Flask(__name__)
 socketio = SocketIO(application)
 
-application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1910@localhost/userinfo'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 application.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 application.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=1)
@@ -422,24 +422,17 @@ def fetch_matching_status():
     return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요", "requested": requested, "matching": matching})
 
 @application.route('/cancel_match', methods=['POST'])
-@login_required
+@login_required 
 def cancel_match():
     current_team_id = current_user.team_id
-
-    if not current_team_id:
-        return jsonify({"message": "팀 등록을 먼저 해주세요."}), 400
-
     current_team_users = Fcuser.query.filter_by(team_id=current_team_id).all()
-    if not current_team_users:
-        return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
-
-    # 요청 상태를 취소합니다.
+    
     for user in current_team_users:
         user.requested = False
         db.session.add(user)
     
     db.session.commit()
-
+    
     return jsonify({"message": "매칭 요청이 취소되었습니다."})
 
 @application.route('/chatroom')
@@ -509,6 +502,22 @@ def receive_message(room):
 def get_user_info():
     user = current_user
     return jsonify({'user_id': user.userid, 'user_name': user.username, 'chat_room': f'room{user.team_id}'})
-    
+
+@application.route('/delete_account', methods=['POST', 'GET'])
+@login_required
+def delete_account():
+    user = current_user
+
+    # 팀에 속해 있는지 확인
+    if user.team_id is not None:
+        flash("팀에 속해 있는 경우 회원 탈퇴를 할 수 없습니다. 먼저 팀을 탈퇴하세요.")
+        return redirect(url_for('settings'))
+
+    else:
+        db.session.delete(user)
+        db.session.commit()
+        flash("회원 탈퇴가 완료되었습니다.")
+        return redirect(url_for('start'))
+
 if __name__ == '__main__':
     application.run(host='0.0.0.0')
