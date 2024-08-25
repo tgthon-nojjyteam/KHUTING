@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
     <title>채팅방</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/chatroom.css') }}"> <!-- CSS 파일 링크 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-    <script src="{{ url_for('static', filename='js/chatroom.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chatroom.js') }}" defer></script>
 </head>
 <body>
     <div class="shape">

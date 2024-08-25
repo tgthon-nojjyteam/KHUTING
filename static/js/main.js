@@ -118,7 +118,7 @@ $(document).ready(function() {
                 }
             },
             error: function(error) {
-                $('#match-status').html('매칭 상태를 가져오는 데 실패했습니다.');
+                $('#match-status').html('팀 등록하기 버튼을 눌러 팀을 등록하세요.');
             }
         });
     }

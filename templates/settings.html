@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>설정</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/email.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,29 +12,30 @@
 </head>
 
 <body>
-    <h1>설정</h1>
-
-    <!-- 항상 표시되는 버튼과 폼 -->
+  <h1>설정</h1>
+  {% if current_user.team_id %}
+    <!-- 팀이 있는 경우: 팀 나가기 버튼과 숨겨진 폼을 표시 -->
     <form id="leave-team-form" action="{{ url_for('team_leave') }}" method="POST" style="display: none;">
-        <input type="hidden" name="team_id" value="{{ team_id }}">
+        <!-- CSRF Token (있다면 추가) -->
     </form>
-  
-    <!-- 버튼에 팀 존재 여부를 data 속성으로 전달 -->
-    <button id="leave-team-button" class="btn btn-danger" data-team-exists="{{ team_exists|lower }}">팀 나가기</button>
-
+    
+    <button id="leave-team-button" class="btn btn-danger">팀 나가기</button> <br>
+    <hr />
+    
     <script>
-        document.getElementById('leave-team-button').onclick = function() {
-            var teamExists = this.getAttribute('data-team-exists') === 'true';
-
-            if (teamExists) {
-                if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
-                    document.getElementById('leave-team-form').submit();
-                }
-            } else {
-                alert('등록된 팀이 없습니다.');
-            }
-        };
+    document.getElementById('leave-team-button').onclick = function() {
+        if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
+            document.getElementById('leave-team-form').submit();
+        }
+    };
     </script>
-    <a href="{{ url_for('delete_account') }}" onclick="return confirm('정말로 탈퇴하시겠습니까?');">회원탈퇴</a>
-</body>
+  {% else %}
+      <p> </p>
+  {% endif %}
+  
+  <p id = text>문의하기</p>
+  <br> jm2147@khu.ac.kr
+  <hr />
+  <a id = "signout" href="{{ url_for('delete_account') }}" onclick="return confirm('정말로 탈퇴하시겠습니까?');">회원탈퇴</a>
+  </body>
 </html>

@@ -6,7 +6,6 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 from flask_mail import Mail, Message
-from flask_socketio import SocketIO
 from collections import defaultdict
 
 import re
@@ -16,7 +15,7 @@ import time
 import threading
 
 application = Flask(__name__)
-socketio = SocketIO(application)
+
 
 application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -263,21 +262,19 @@ def team_register():
 @application.route('/team_leave', methods=['POST'])
 @login_required
 def team_leave():
-    team_id = request.form.get('team_id')  # 클라이언트에서 전달받은 team_id
-
-    # team_id로 팀 조회
-    team = Fcuser.query.get(team_id)
+    # 현재 사용자가 속한 팀을 가져옵니다.
+    team = Team.query.filter(Team.members.any(id=current_user.id)).first()
 
     if not team:
-        flash("등록된 팀이 없습니다.")
-        return redirect(url_for('settings'))
+        flash("현재 팀에 속해있지 않습니다.")
+        return redirect(url_for('index'))
 
     # 팀 삭제
     db.session.delete(team)
     db.session.commit()
 
     flash("팀이 성공적으로 삭제되었습니다.")
-    return redirect(url_for('settings'))
+    return redirect(url_for('index'))
 
 @application.route("/email", methods=['POST', 'GET'])
 def email():
@@ -418,17 +415,24 @@ def fetch_matching_status():
     return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요", "requested": requested, "matching": matching})
 
 @application.route('/cancel_match', methods=['POST'])
-@login_required 
+@login_required
 def cancel_match():
     current_team_id = current_user.team_id
+
+    if not current_team_id:
+        return jsonify({"message": "팀 등록을 먼저 해주세요."}), 400
+
     current_team_users = Fcuser.query.filter_by(team_id=current_team_id).all()
-    
+    if not current_team_users:
+        return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
+
+    # 요청 상태를 취소합니다.
     for user in current_team_users:
         user.requested = False
         db.session.add(user)
     
     db.session.commit()
-    
+
     return jsonify({"message": "매칭 요청이 취소되었습니다."})
 
 @application.route('/chatroom')
@@ -436,34 +440,30 @@ def cancel_match():
 def chatroom():
     user = current_user
     matched_team_members = []
-    
+
     # 본인 팀의 멤버들
     team_members = []
     if user.team_id:
         team = Team.query.get(user.team_id)
         if team:
             team_members = team.members
-    
+
     # 매칭된 팀의 멤버들
     if user.matched_team_id:
         matched_team = Team.query.get(user.matched_team_id)
         if matched_team:
-            # 팀원들을 학과별로 그룹화합니다.
             department_dict = defaultdict(list)
             for member in matched_team.members:
                 department_dict[member.department].append(member)
 
-            # 본인 팀과 매칭된 팀을 통합하여 학과별로 3명씩 추출합니다.
             for members in department_dict.values():
                 matched_team_members.extend(members[:3])
-                
-            # 최대 6명까지만 전달
+
             matched_team_members = matched_team_members[:6]
-    
-    # 본인 팀 멤버도 포함하여 최대 6명까지만 전달
+
     final_members = sorted(set(team_members) | set(matched_team_members), key=lambda x: x.id)[:6]
 
-    return render_template('chatroom.html', matched_team_members=final_members)
+    return render_template('chatroom.html', matched_team_members=final_members, room=f'room{user.team_id}')
 
 # 채팅방과 메시지 매핑
 chat_rooms = defaultdict(lambda: defaultdict(list))
@@ -476,44 +476,37 @@ def send_message():
     message = data.get('message')
 
     if room and user and message:
-        chat_rooms[room][user].append(message)  # 방과 사용자별로 메시지 추가
+        new_message = ChatMessage(user=user, room=room, message=message)
+        db.session.add(new_message)
+        db.session.commit()
         return jsonify({'status': 'Message received'})
     return jsonify({'status': 'Invalid data'}), 400
 
 @application.route('/receive_message/<room>', methods=['GET'])
 def receive_message(room):
-    while True:
-        if chat_rooms[room]:  # 새로운 메시지가 있으면
-            messages = []
-            for user, msgs in chat_rooms[room].items():
-                if msgs:
-                    messages.extend({'user': user, 'message': msg} for msg in msgs)
-                    chat_rooms[room][user] = []  # 메시지를 반환한 후 삭제
-            return jsonify(messages)  # 모든 메시지를 반환
+    try:
+        messages = ChatMessage.query.filter_by(room=room).order_by(ChatMessage.timestamp.asc()).all()
+        response = [{'id': msg.id, 'user': msg.user, 'message': msg.message} for msg in messages]
+        return jsonify(response)
+    except Exception as e:
+        print(f"Error fetching messages: {e}")
+        return jsonify({'error': 'Unable to fetch messages'}), 500
 
-        time.sleep(1)  # 메시지가 없으면 1초 대기 후 다시 체크
+class ChatMessage(db.Model):
+    __tablename__ = 'chat_message'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user = db.Column(db.String(50))
+    room = db.Column(db.String(50), nullable=False)
+    message = db.Column(db.String(200))
+    timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+
 
 @application.route('/get_user_info', methods=['GET'])
 @login_required
 def get_user_info():
     user = current_user
     return jsonify({'user_id': user.userid, 'user_name': user.username, 'chat_room': f'room{user.team_id}'})
-
-@application.route('/delete_account', methods=['POST', 'GET'])
-@login_required
-def delete_account():
-    user = current_user
-
-    # 팀에 속해 있는지 확인
-    if user.team_id is not None:
-        flash("팀에 속해 있는 경우 회원 탈퇴를 할 수 없습니다. 먼저 팀을 탈퇴하세요.")
-        return redirect(url_for('settings'))
-
-    else:
-        db.session.delete(user)
-        db.session.commit()
-        flash("회원 탈퇴가 완료되었습니다.")
-        return redirect(url_for('start'))
-
+    
 if __name__ == '__main__':
-    application.run(host='0.0.0.0')
+    application.run(debug=True,host='0.0.0.0')
