@@ -12,6 +12,9 @@
     <div class="shape">
         <img src="{{ url_for('static', filename='images/logo_horizontal.png') }}" alt="Logo" class="logo">
         <img src="{{ url_for('static', filename='images/menu.png') }}" alt="Menu" class="menu-button" id="menu-button">
+        <a href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='images/back.png' )}}" alt="Back" class="back-button" id="back-button">
+        </a>        
     </div>
     <p id="matched-department"><span id="department-name">로딩 중...</span></p>
 
@@ -54,39 +57,36 @@
                 <span class="close-button" id="close-popup">&times;</span>
                 <h4>4명 이상 동의 버튼을 누르면 <br>과팅이 종료됩니다.</h4>
                 <p class="agree-button" id="agree-button">동의</p>
-                <div id="count-display">0/6</div>
             </div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    var endButton = document.getElementById('end-button');
-                    var popup = document.getElementById('popup');
-                    var closePopup = document.getElementById('close-popup');
-                    var overlay = document.getElementById('overlay');
+                var endButton = document.getElementById('end-button');
+                var popup = document.getElementById('popup');
+                var closePopup = document.getElementById('close-popup');
+                var overlay = document.getElementById('overlay');
+                var agreeButton = document.getElementById('agree-button');
 
-                    // '과팅 종료' 버튼 클릭 시 팝업과 오버레이 열기
-                    endButton.addEventListener('click', function() {
-                        popup.style.display = 'block';
-                        overlay.style.display = 'block';
-                    });
-
-                    // 닫기 버튼 클릭 시 팝업과 오버레이 닫기
-                    closePopup.addEventListener('click', function() {
-                        popup.style.display = 'none';
-                        overlay.style.display = 'none';
-                    });
-
-                    // 오버레이 클릭 시 팝업과 오버레이 닫기
-                    overlay.addEventListener('click', function() {
-                        popup.style.display = 'none';
-                        overlay.style.display = 'none';
-                    });
+                // '과팅 종료' 버튼 클릭 시 팝업과 오버레이 열기
+                endButton.addEventListener('click', function() {
+                    popup.style.display = 'block';
+                    overlay.style.display = 'block';
                 });
 
+                // 닫기 버튼 클릭 시 팝업과 오버레이 닫기
+                closePopup.addEventListener('click', function() {
+                    popup.style.display = 'none';
+                    overlay.style.display = 'none';
+                });
 
+                // 오버레이 클릭 시 팝업과 오버레이 닫기
+                overlay.addEventListener('click', function() {
+                    popup.style.display = 'none';
+                    overlay.style.display = 'none';
+                });
 
-                // 동의 버튼
-                document.getElementById('agree-button').addEventListener('click', function() {
+                // 동의 버튼 클릭 이벤트 핸들러
+                agreeButton.addEventListener('click', function() {
                     fetch('/agree', {
                         method: 'POST',
                         headers: {
@@ -97,10 +97,17 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // 동의 상태와 카운트를 화면에 업데이트
-                            document.getElementById('count-display').innerText = `${data.count}/${data.total}`;
+                            alert('동의 처리되었습니다.');
+
+                            // 버튼을 회색으로 변경하고 비활성화
+                            agreeButton.style.backgroundColor = '#d3d3d3'; // 회색
+                            agreeButton.style.color = '#000'; // 검정색 텍스트
+                            agreeButton.style.cursor = 'not-allowed'; // 커서 변경
+                            agreeButton.disabled = true; // 버튼 비활성화
+
+                            updateCount(); // 동의 카운트 업데이트
                         } else {
-                            alert('동의 처리 실패: ' + data.error);
+                            alert('이미 동의 처리되었습니다.');
                         }
                     })
                     .catch(error => console.error('Error:', error));
@@ -108,11 +115,26 @@
 
                 // 페이지 로드 시 카운트 업데이트
                 function updateCount() {
-                    fetch('/get_agree_count') // 여기에 동의 카운트 정보를 받아오는 API 엔드포인트 URL을 사용
+                    fetch('/get_agree_count')
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 document.getElementById('count-display').innerText = `${data.count}/${data.total}`;
+                                
+                                // 4명 이상 동의한 경우 "과팅 종료" 버튼을 회색으로 변경하고 비활성화
+                                if (data.count >= 4) {
+                                    document.querySelector('#popup h4').innerText = '과팅이 종료되었습니다.';
+                                    agreeButton.style.backgroundColor = '#d3d3d3'; // 회색
+                                    agreeButton.style.color = '#000'; // 검정색 텍스트
+                                    agreeButton.style.cursor = 'not-allowed'; // 커서 변경
+                                    agreeButton.disabled = true; // 버튼 비활성화
+
+                                    // 모든 사용자의 화면에서 "과팅 종료" 버튼 비활성화
+                                    endButton.style.backgroundColor = '#d3d3d3'; // 회색
+                                    endButton.style.color = '#000'; // 검정색 텍스트
+                                    endButton.style.cursor = 'not-allowed'; // 커서 변경
+                                    endButton.disabled = true; // 버튼 비활성화
+                                }
                             } else {
                                 console.error('Error fetching agree count:', data.error);
                             }
@@ -122,6 +144,7 @@
 
                 // 페이지 로드 시 동의 상태 업데이트
                 updateCount();
+            });
             </script>
             </div>
     </div>

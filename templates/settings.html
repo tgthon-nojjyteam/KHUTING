@@ -6,36 +6,159 @@
     <title>설정</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Bootstrap 사용을 위한 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        /* Flash 메시지 스타일링 */
+        #flash-messages {
+            border: 1px solid #fbf9f9;
+            padding: 10px;
+            position: relative;
+            margin-bottom: 20px;
+            background-color: #f8d7da;
+            color: #d6d5d5;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #flash-messages button {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #f6f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+        .btn-custom {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 18px;    
+            border-radius: 5px;
+        }
+        .btn-danger {
+            background-color: #17a2b8; /* 하늘색 */
+            border-color: #17a2b8;
+            color: #110101; /* 텍스트 색상 흰색 */
+        }
+        .btn-danger:hover {
+            background-color: #138496; /* 어두운 하늘색 */
+            border-color: #117a8b;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: #ffffff;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .btn-warning {
+            background-color: #5a6268;
+            border-color: #5a6268;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
+        }
+        p#text {
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: center;
+            color: #333;
+        }
+        hr {
+            margin: 20px 0;
+        }
+    </style>
 </head>
 
 <body>
-  <h1>설정</h1>
-  {% if current_user.team_id %}
-    <!-- 팀이 있는 경우: 팀 나가기 버튼과 숨겨진 폼을 표시 -->
-    <form id="leave-team-form" action="{{ url_for('team_leave') }}" method="POST" style="display: none;">
-        <!-- CSRF Token (있다면 추가) -->
-    </form>
-    
-    <button id="leave-team-button" class="btn btn-danger">팀 나가기</button> <br>
-    <hr />
-    
-    <script>
-    document.getElementById('leave-team-button').onclick = function() {
-        if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
-            document.getElementById('leave-team-form').submit();
-        }
-    };
-    </script>
-  {% else %}
-      <p> </p>
-  {% endif %}
+
+    <div class="container">
+        <h1>설정</h1>
+      
+        <!-- Flash 메시지를 출력하는 코드 -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div id="flash-messages">
+              <button onclick="this.parentElement.style.display='none';">&times;</button>
+              <ul>
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        {% endwith %}
+      
+        <!-- 팀이 있을 때만 표시되는 팀 나가기 버튼 -->
+        {% if current_user.team_id %}
+          <form id="leave-team-form" action="{{ url_for('team_leave') }}" method="POST">
+            <!-- CSRF Token을 추가하세요 (Flask-WTF 사용 시) -->
+          </form>
+          
+          <button id="leave-team-button" class="btn btn-danger btn-custom">팀 나가기</button>
+          <hr />
+          
+          <script>
+          document.getElementById('leave-team-button').onclick = function() {
+              if (confirm('팀을 나가면 등록된 팀은 사라집니다. 정말로 나가시겠습니까?')) {
+                  document.getElementById('leave-team-form').submit();
+              }
+          };
+          </script>
+        {% else %}
+            <p>팀에 가입되어 있지 않습니다.</p>
+        {% endif %}
+        
+        <!-- 이메일 문의하기 버튼 -->
+        <p id="text">문의하기</p>
+        <a href="mailto:jm2147@khu.ac.kr" class="btn btn-secondary btn-custom">이메일 보내기</a>
+        <hr />
+        
+        <!-- 회원 탈퇴 버튼 -->
+        <a id="signout" href="{{ url_for('delete_account') }}" class="btn btn-warning btn-custom" onclick="return confirm('정말로 탈퇴하시겠습니까?');">회원탈퇴</a>
+        <hr />
+        
+        <!-- 링크 공유하기 버튼 -->
+        <button id="share-button" class="btn btn-primary btn-custom">링크 공유하기</button>
+
+        <script>
+          document.getElementById('share-button').onclick = function() {
+              if (navigator.share) {
+                  navigator.share({
+                      title: document.title,
+                      url: window.location.href
+                  }).then(() => {
+                      console.log('링크가 성공적으로 공유되었습니다.');
+                  }).catch((error) => {
+                      console.error('링크 공유에 실패했습니다:', error);
+                  });
+              } else {
+                  alert('이 브라우저에서는 링크 공유 기능을 지원하지 않습니다.');
+              }
+          };
+        </script>
+    </div>
   
-  <p id = text>문의하기</p>
-  <br> jm2147@khu.ac.kr
-  <hr />
-  <a id = "signout" href="{{ url_for('delete_account') }}" onclick="return confirm('정말로 탈퇴하시겠습니까?');">회원탈퇴</a>
-  </body>
+</body>
 </html>

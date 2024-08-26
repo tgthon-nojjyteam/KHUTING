@@ -420,7 +420,7 @@ def fetch_matching_status():
         return jsonify({"message": "상대 팀을 찾고 있어요.", "requested": requested, "matching": matching})
     
     # Not requested
-    return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요", "requested": requested, "matching": matching})
+    return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요.", "requested": requested, "matching": matching})
 
 @application.route('/cancel_match', methods=['POST'])
 @login_required
@@ -560,12 +560,15 @@ def agree():
 
     # 4명 이상이 동의한 경우 matching과 requested 값을 0으로 업데이트
     if agree_count >= 4:
+        ChatMessage.query.filter_by(room=f'room{user.groupnumber}').delete()
         for u in users_in_group:
             u.matching = False
             u.requested = False
             u.matched_team_id = None
+            u.groupnumber = None
             u.end = None  # 동의 초기화 (선택 사항)
         db.session.commit()
+
 
     return jsonify(success=True, count=agree_count, total=len(users_in_group)), 200
     
