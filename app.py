@@ -17,7 +17,7 @@ import threading
 application = Flask(__name__)
 
 
-application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1910@localhost/userinfo'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 application.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 application.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=1)
@@ -57,6 +57,7 @@ class Fcuser(UserMixin, db.Model):
     matching = db.Column(db.Boolean, default=False)
     requested = db.Column(db.Boolean, default=False)
     matched_team_id = db.Column(db.Integer, nullable=True)  # 매칭된 팀 ID
+    groupnumber = db.Column(db.String(50), nullable=True)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -357,14 +358,20 @@ def match_teams():
     if not users_in_random_team:
         return jsonify({"message": "랜덤 팀의 정보를 찾을 수 없습니다."}), 400
 
+     # groupnumber 생성
+    groupnumber = f"{current_team_id}_{random_team_id}"
+
+
     for user in current_team_users:
         user.matching = True
         user.matched_team_id = random_team_id
+        user.groupnumber = groupnumber
         db.session.add(user)
     
     for user in users_in_random_team:
         user.matching = True
         user.matched_team_id = current_team_id
+        user.groupnumber = groupnumber
         db.session.add(user)
     
     db.session.commit()
@@ -463,7 +470,12 @@ def chatroom():
 
     final_members = sorted(set(team_members) | set(matched_team_members), key=lambda x: x.id)[:6]
 
-    return render_template('chatroom.html', matched_team_members=final_members, room=f'room{user.team_id}')
+    room = f'room{user.groupnumber}'
+
+    if not room:
+        return jsonify({"message": "매칭된 팀이 없거나 그룹이 생성되지 않았습니다."}), 400
+
+    return render_template('chatroom.html', matched_team_members=final_members, room=room)
 
 # 채팅방과 메시지 매핑
 chat_rooms = defaultdict(lambda: defaultdict(list))
@@ -506,7 +518,7 @@ class ChatMessage(db.Model):
 @login_required
 def get_user_info():
     user = current_user
-    return jsonify({'user_id': user.userid, 'user_name': user.username, 'chat_room': f'room{user.team_id}'})
+    return jsonify({'user_id': user.userid, 'user_name': user.username, 'chat_room': f'room{user.groupnumber}'})
     
 if __name__ == '__main__':
     application.run(debug=True,host='0.0.0.0')
