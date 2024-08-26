@@ -442,7 +442,7 @@ def cancel_match():
 
     return jsonify({"message": "매칭 요청이 취소되었습니다."})
 
-@app.route('/delete_account', methods=['POST', 'GET'])
+@application.route('/delete_account', methods=['POST', 'GET'])
 @login_required
 def delete_account():
     user = current_user

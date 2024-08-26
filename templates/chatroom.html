@@ -24,9 +24,7 @@
             </div>
         </div>
     </div>
-
-    <div id="overlay" class="overlay"></div>
-
+    
     <div id="side-menu" class="side-menu">
         <div class="menu-content">
             <span id="close-menu" class="close">&times;</span>
@@ -34,15 +32,16 @@
             <ul class="member-list">
                 {% set current_department = None %}
                 {% for member in matched_team_members %}
+                    <!-- 현재 학과와 이전 학과를 비교 -->
                     {% if current_department != member.department %}
-                        {% if current_department is not none %}
-                            <li class="divider"></li>
-                        {% endif %}
+                        <!-- 학과가 바뀌었을 때만 divider를 추가 -->
+                        <li class="divider"></li>
                         <li class="department-header">{{ member.department }}</li>
-                        {% set current_department = member.department %}
                     {% endif %}
+                    {% set current_department = member.department%}
+                    <!-- 멤버 정보 출력 -->
                     <li class="member-item">
-                        {{ member.username }} ({{ member.department }}) {{ member.student_id }} {{ member.mbti }}
+                        {{ member.username }} {{ member.student_id }} {{ member.mbti }}
                     </li>
                 {% endfor %}
             </ul>
