@@ -162,7 +162,7 @@ def profile():
         if profile_picture:
             current_user.profile_picture = profile_picture
             db.session.commit()
-            flash("회원가입이 완료되었습니다. 다시 로그인해주세요.")
+            flash("회원가입이 완료되었습니다. 로그인해주세요.")
             logout_user()
             return redirect(url_for('profile'))
         flash("프로필 사진을 선택해 주세요.")
@@ -442,6 +442,22 @@ def cancel_match():
     db.session.commit()
 
     return jsonify({"message": "매칭 요청이 취소되었습니다."})
+
+@application.route('/delete_account', methods=['POST', 'GET'])
+@login_required
+def delete_account():
+    user = current_user
+
+    # 팀에 속해 있는지 확인
+    if user.team_id is not None:
+        flash("팀에 속해 있는 경우 회원 탈퇴를 할 수 없습니다. 먼저 팀을 탈퇴하세요.")
+        return redirect(url_for('settings'))
+
+    else:
+        db.session.delete(user)
+        db.session.commit()
+        flash("회원 탈퇴가 완료되었습니다.")
+        return redirect(url_for('start'))
 
 @application.route('/chatroom')
 @login_required
