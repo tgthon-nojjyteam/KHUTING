@@ -127,12 +127,20 @@ button:hover {
     text-align: right;
     color: white;
     font-weight: 400;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 0px;
 }
 
 .message.other {
     align-self: flex-start;
-    background-color: #fff;
+    background-color: #efefef;
     text-align: left;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 30px;
 }
 
 .menu-button {
@@ -216,4 +224,18 @@ button:hover {
 .divider {
     border-top: 1px solid #ccc;
     margin: 10px 0;
+}
+
+/* 스크롤바를 완전히 투명하게 설정 (사실상 보이지 않게 함) */
+::-webkit-scrollbar {
+    width: 0; /* 스크롤바를 완전히 숨김 */
+    background: transparent;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: transparent;
 }

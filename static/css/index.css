@@ -1,3 +1,12 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "Noto Sans KR", sans-serif;
+    letter-spacing: -0.5px;
+    overflow:hidden;
+}
+
 .noto-sans-kr {
     font-family: "Noto Sans KR", sans-serif;
     font-optical-sizing: auto;
