@@ -17,7 +17,7 @@ import threading
 application = Flask(__name__)
 
 
-application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1910@localhost/userinfo'
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 application.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 application.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=1)
@@ -58,6 +58,7 @@ class Fcuser(UserMixin, db.Model):
     requested = db.Column(db.Boolean, default=False)
     matched_team_id = db.Column(db.Integer, nullable=True)  # 매칭된 팀 ID
     groupnumber = db.Column(db.String(50), nullable=True)
+    end = db.Column(db.Boolean, default=None, nullable=True)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -519,6 +520,38 @@ class ChatMessage(db.Model):
 def get_user_info():
     user = current_user
     return jsonify({'user_id': user.userid, 'user_name': user.username, 'chat_room': f'room{user.groupnumber}'})
+
+@application.route('/agree', methods=['POST'])
+@login_required
+def agree():
+    user = Fcuser.query.get(current_user.id)
+    
+    if not user:
+        return jsonify(success=False, error="User not found"), 404
+
+    if user.end:
+        return jsonify(success=False, error="Already agreed"), 400
+
+    # 사용자의 동의 상태를 True로 설정
+    user.end = True
+    db.session.commit()
+
+    # 같은 groupnumber에 속한 사용자들 확인
+    users_in_group = Fcuser.query.filter_by(groupnumber=user.groupnumber).all()
+
+    # 동의한 사용자 수 계산
+    agree_count = sum(1 for u in users_in_group if u.end)
+
+    # 4명 이상이 동의한 경우 matching과 requested 값을 0으로 업데이트
+    if agree_count >= 4:
+        for u in users_in_group:
+            u.matching = False
+            u.requested = False
+            u.matched_team_id = None
+            u.end = None  # 동의 초기화 (선택 사항)
+        db.session.commit()
+
+    return jsonify(success=True, count=agree_count, total=len(users_in_group)), 200
     
 if __name__ == '__main__':
     application.run(debug=True,host='0.0.0.0')

@@ -46,7 +46,85 @@
                     </li>
                 {% endfor %}
             </ul>
-        </div>
+            
+            <p class="end-button" id="end-button">과팅 종료</p>
+
+            <div id="overlay"></div>
+
+            <div id="popup">
+                <span class="close-button" id="close-popup">&times;</span>
+                <h4>4명 이상 동의 버튼을 누르면 <br>과팅이 종료됩니다.</h4>
+                <p class="agree-button" id="agree-button">동의</p>
+                <div id="count-display">0/6</div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var endButton = document.getElementById('end-button');
+                    var popup = document.getElementById('popup');
+                    var closePopup = document.getElementById('close-popup');
+                    var overlay = document.getElementById('overlay');
+
+                    // '과팅 종료' 버튼 클릭 시 팝업과 오버레이 열기
+                    endButton.addEventListener('click', function() {
+                        popup.style.display = 'block';
+                        overlay.style.display = 'block';
+                    });
+
+                    // 닫기 버튼 클릭 시 팝업과 오버레이 닫기
+                    closePopup.addEventListener('click', function() {
+                        popup.style.display = 'none';
+                        overlay.style.display = 'none';
+                    });
+
+                    // 오버레이 클릭 시 팝업과 오버레이 닫기
+                    overlay.addEventListener('click', function() {
+                        popup.style.display = 'none';
+                        overlay.style.display = 'none';
+                    });
+                });
+
+
+
+                // 동의 버튼
+                document.getElementById('agree-button').addEventListener('click', function() {
+                    fetch('/agree', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ update: true })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 동의 상태와 카운트를 화면에 업데이트
+                            document.getElementById('count-display').innerText = `${data.count}/${data.total}`;
+                        } else {
+                            alert('동의 처리 실패: ' + data.error);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+
+                // 페이지 로드 시 카운트 업데이트
+                function updateCount() {
+                    fetch('/get_agree_count') // 여기에 동의 카운트 정보를 받아오는 API 엔드포인트 URL을 사용
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('count-display').innerText = `${data.count}/${data.total}`;
+                            } else {
+                                console.error('Error fetching agree count:', data.error);
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+
+                // 페이지 로드 시 동의 상태 업데이트
+                updateCount();
+            </script>
+            </div>
     </div>
 </body>
 </html>
