@@ -31,7 +31,7 @@
             <h3>대화 상대</h3>
             <ul class="member-list">
                 {% set current_department = None %}
-                {% for member in matched_team_members %}
+                {% for member in matched_team_members| sort(attribute='department') %}
                     <!-- 현재 학과와 이전 학과를 비교 -->
                     {% if current_department != member.department %}
                         <!-- 학과가 바뀌었을 때만 divider를 추가 -->
