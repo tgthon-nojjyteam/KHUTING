@@ -42,7 +42,7 @@
                         {% set current_department = member.department %}
                     {% endif %}
                     <li class="member-item">
-                        {{ member.username }} ({{ member.department }})
+                        {{ member.username }} ({{ member.department }}) {{ member.student_id }} {{ member.mbti }}
                     </li>
                 {% endfor %}
             </ul>
