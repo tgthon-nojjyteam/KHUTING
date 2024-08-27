@@ -17,7 +17,7 @@ import threading
 application = Flask(__name__)
 
 
-application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1910@localhost/userinfo'
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 application.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 application.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=1)
@@ -218,9 +218,9 @@ def index():
     return render_template('index.html', user=user, team_members=team_members,team_id=user.team_id, matching=user.matching,requested=user.requested)
 
 @application.route('/settings')
+@login_required
 def settings():
     return render_template('settings.html')
-
 
 @application.route('/team_register', methods=['GET', 'POST'])
 @login_required
@@ -231,54 +231,52 @@ def team_register():
 
         current_user_number = current_user.unique_number
 
+        # 자신의 고유번호를 팀원으로 사용할 수 없게 함
         if user1_number == str(current_user_number) or user2_number == str(current_user_number):
             flash("자신의 고유번호를 팀원으로 사용할 수 없습니다.")
             return redirect(url_for('team_register'))
 
-         # 사용자 고유번호로 Fcuser 객체 조회
-        users = Fcuser.query.filter(Fcuser.unique_number.in_([user1_number, user2_number])).all()
+        # 사용자 고유번호로 Fcuser 객체 조회
+        users = Fcuser.query.filter(Fcuser.unique_number.in_([user1_number, user2_number, str(current_user_number)])).all()
 
-        if len(users) != 2:
+        # 입력된 번호로 조회된 사용자가 3명이 아니면 오류
+        if len(users) != 3:
             flash("입력된 고유번호가 올바르지 않습니다.")
             return redirect(url_for('team_register'))
 
+        # user1, user2, current_user의 team_id 가져오기
         user1 = next((user for user in users if user.unique_number == user1_number), None)
         user2 = next((user for user in users if user.unique_number == user2_number), None)
+        current_user_data = next((user for user in users if user.unique_number == str(current_user_number)), None)
 
-        # user1, user2의 team_id를 가져오기
-        user1_team_id = user1.team_id if user1 else None
-        user2_team_id = user2.team_id if user2 else None
-
-        # user1, user2가 이미 팀에 소속되어 있는지 확인
-        if user1_team_id or user2_team_id:
-            flash("입력된 팀원 중 하나 이상이 이미 팀에 소속되어 있습니다.")
+        # 모든 사용자에 대해 이미 팀에 소속된 경우 확인
+        if any(user.team_id for user in users):
+            flash("이미 다른 팀에 소속되어 있는 팀원이 있습니다.")
             return redirect(url_for('team_register'))
 
+        # 팀 생성
         new_team = Team()
 
-        team_member_numbers = [user1_number, user2_number, str(current_user_number)]
-
-        users = Fcuser.query.filter(Fcuser.unique_number.in_(team_member_numbers)).all()
-
-        if len(users) != 3:
-            db.session.rollback()
-            flash("팀원 고유번호가 올바르지 않습니다.")
-            return redirect(url_for('team_register'))
-
+        # 팀원들의 학과와 성별 일치 여부 확인
         departments = {user.department for user in users}
         genders = {user.gender for user in users}
 
         if len(departments) == 1 and len(genders) == 1:
-            for user in users:
-                user.team = new_team
+            try:
+                # 새로운 팀에 사용자 할당
+                for user in users:
+                    user.team = new_team
 
-            db.session.add(new_team)
-            db.session.commit()
-            flash("팀이 성공적으로 등록되었습니다.")
-            return redirect(url_for('team_register')) 
+                db.session.add(new_team)
+                db.session.commit()
+                flash("팀이 성공적으로 등록되었습니다.")
+            except Exception as e:
+                db.session.rollback()
+                flash("팀 등록 중 오류가 발생했습니다.")
         else:
-            db.session.rollback()
             flash("팀원들의 학과와 성별이 일치하지 않습니다.")
+
+        return redirect(url_for('team_register'))
 
     return render_template('team_register.html')
 

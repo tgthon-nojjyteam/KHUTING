@@ -12,6 +12,7 @@ h1 {
     letter-spacing: -0.5px;
     margin-left: 10px;
     margin-bottom: 60px;
+    margin-top: 50px;
 }
 
 /* h3 스타일 */
@@ -128,4 +129,15 @@ hr {
     display: block; /* 버튼이 블록 요소로 취급되어 오른쪽 정렬되도록 */
     margin-top: 20px;
     margin-right: 17px;
+}
+
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 10px;
+    width: 22px;
+    height: auto;
+    cursor: pointer;
+    z-index: 1000;
+    filter: invert(1);
 }

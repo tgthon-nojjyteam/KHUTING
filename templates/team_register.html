@@ -16,6 +16,9 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </head>
 <body>
+    <a href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/back.png' )}}" alt="Back" class="back-button" id="back-button">
+    </a>
     <h1>팀을 등록해주세요.</h1>
     <div class="icon-text">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
