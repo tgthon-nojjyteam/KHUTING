@@ -583,8 +583,15 @@ def agree():
             u.end = None
         db.session.commit()
 
-
     return jsonify(success=True, count=agree_count, total=len(users_in_group)), 200
+
+@application.route('/cause-error')
+def cause_error():
+    raise Exception("예기치 못한 오류가 발생했습니다. 관리자에게 문의하세요.")
+
+@application.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
     
 if __name__ == '__main__':
-    application.run(debug=True,host='0.0.0.0')
+    application.run(host='0.0.0.0')
