@@ -17,7 +17,7 @@ import threading
 application = Flask(__name__)
 
 
-application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1910@localhost/userinfo'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 application.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 application.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=1)
@@ -269,7 +269,11 @@ def team_leave():
 
     if not team:
         flash("현재 팀에 속해있지 않습니다.")
-        return redirect(url_for('index'))
+        return redirect(url_for('settings'))
+
+    if current_user.requested:
+        flash("매칭 요청 중에는 팀에서 나갈 수 없습니다.")
+        return redirect(url_for('settings'))
 
     # 팀 삭제
     db.session.delete(team)
