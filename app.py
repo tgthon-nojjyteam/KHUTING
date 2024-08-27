@@ -17,7 +17,7 @@ import threading
 application = Flask(__name__)
 
 
-application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:2147@localhost/userinfo'
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1910@localhost/userinfo'
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 application.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'default_secret_key')
 application.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=1)
@@ -94,6 +94,11 @@ def signup_data():
         department = request.form.get('department')
         student_id = request.form.get('student_id')
         mbti = request.form.get('mbti')
+
+        existing_user = Fcuser.query.filter_by(email=email).first()
+        if existing_user:
+            flash("이미 존재하는 이메일입니다.")
+            return redirect(url_for('signup_data'))
 
         if not (username and userid and password and password_confirm and gender and department and student_id):
             flash("모두 입력해주세요.")
@@ -229,9 +234,9 @@ def team_register():
         existing_team = Team.query.filter(Team.members.any(id=current_user.id)).first()
         if existing_team:
             flash("이미 팀에 등록되어 있습니다.")
-            return redirect(url_for('index'))
+            return redirect(url_for('team_register'))
 
-        new_team = Team()  # 이름 없이 팀 생성
+        new_team = Team()
 
         team_member_numbers = [user1_number, user2_number, str(current_user_number)]
 
@@ -252,7 +257,7 @@ def team_register():
             db.session.add(new_team)
             db.session.commit()
             flash("팀이 성공적으로 등록되었습니다.")
-            return redirect(url_for('index')) 
+            return redirect(url_for('team_register')) 
         else:
             db.session.rollback()
             flash("팀원들의 학과와 성별이 일치하지 않습니다.")
@@ -264,18 +269,23 @@ def team_register():
 @application.route('/team_leave', methods=['POST'])
 @login_required
 def team_leave():
-    # 현재 사용자가 속한 팀을 가져옵니다.
+    # 현재 사용자가 속한 팀을 가져오기
     team = Team.query.filter(Team.members.any(id=current_user.id)).first()
 
     if not team:
         flash("현재 팀에 속해있지 않습니다.")
-        return redirect(url_for('index'))
+        return redirect(url_for('settings'))
+
+    if current_user.requested:
+        flash("매칭 요청 중에는 팀에서 나갈 수 없습니다.")
+        return redirect(url_for('settings'))
 
     # 팀 삭제
     db.session.delete(team)
     db.session.commit()
 
-    return redirect(url_for('index'))
+    flash("팀이 성공적으로 삭제되었습니다.")
+    return redirect(url_for('settings'))
 
 @application.route("/email", methods=['POST', 'GET'])
 def email():
@@ -394,14 +404,11 @@ def fetch_matching_status():
     if not current_team_users:
         return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
 
-    # Check if any user in the current team has requested a match
     requested = any(user.requested for user in current_team_users)
     
-    # Check if any user in the current team has been matched
     matching = any(user.matching for user in current_team_users)
 
     if matching:
-        # Find the matched team ID
         matched_team_id = next((user.matched_team_id for user in current_team_users if user.matching), None)
         matched_team_users = Fcuser.query.filter_by(team_id=matched_team_id).all()
         matched_team_department = matched_team_users[0].department if matched_team_users else "알 수 없음"
@@ -414,11 +421,9 @@ def fetch_matching_status():
             message = "매칭이 완료되었습니다!"
         return jsonify({"message": message, "chat_message": chat_message, "requested": requested, "matching": matching})
     
-    # No matching but requested
     if requested:
         return jsonify({"message": "상대 팀을 찾고 있어요.", "requested": requested, "matching": matching})
     
-    # Not requested
     return jsonify({"message": "매칭하기 버튼을 눌러 과팅을 시작해보세요.", "requested": requested, "matching": matching})
 
 @application.route('/cancel_match', methods=['POST'])
@@ -433,7 +438,6 @@ def cancel_match():
     if not current_team_users:
         return jsonify({"message": "현재 팀 정보를 찾을 수 없습니다."}), 400
 
-    # 요청 상태를 취소합니다.
     for user in current_team_users:
         user.requested = False
         db.session.add(user)
@@ -447,7 +451,6 @@ def cancel_match():
 def delete_account():
     user = current_user
 
-    # 팀에 속해 있는지 확인
     if user.team_id is not None:
         flash("팀에 속해 있는 경우 회원 탈퇴를 할 수 없습니다. 먼저 팀을 탈퇴하세요.")
         return redirect(url_for('settings'))
@@ -455,8 +458,8 @@ def delete_account():
     else:
         db.session.delete(user)
         db.session.commit()
-        flash("회원 탈퇴가 완료되었습니다.")
         return redirect(url_for('start'))
+        
 
 @application.route('/chatroom')
 @login_required
@@ -493,7 +496,6 @@ def chatroom():
 
     return render_template('chatroom.html', matched_team_members=final_members, room=room)
 
-# 채팅방과 메시지 매핑
 chat_rooms = defaultdict(lambda: defaultdict(list))
 
 @application.route('/send_message', methods=['POST'])
@@ -547,17 +549,14 @@ def agree():
     if user.end:
         return jsonify(success=False, error="Already agreed"), 400
 
-    # 사용자의 동의 상태를 True로 설정
     user.end = True
     db.session.commit()
 
-    # 같은 groupnumber에 속한 사용자들 확인
     users_in_group = Fcuser.query.filter_by(groupnumber=user.groupnumber).all()
 
     # 동의한 사용자 수 계산
     agree_count = sum(1 for u in users_in_group if u.end)
 
-    # 4명 이상이 동의한 경우 matching과 requested 값을 0으로 업데이트
     if agree_count >= 4:
         ChatMessage.query.filter_by(room=f'room{user.groupnumber}').delete()
         for u in users_in_group:
@@ -565,7 +564,7 @@ def agree():
             u.requested = False
             u.matched_team_id = None
             u.groupnumber = None
-            u.end = None  # 동의 초기화 (선택 사항)
+            u.end = None
         db.session.commit()
 
     return jsonify(success=True, count=agree_count, total=len(users_in_group)), 200
