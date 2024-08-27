@@ -95,6 +95,11 @@ def signup_data():
         student_id = request.form.get('student_id')
         mbti = request.form.get('mbti')
 
+        existing_user = Fcuser.query.filter_by(email=email).first()
+        if existing_user:
+            flash("이미 존재하는 이메일입니다.")
+            return redirect(url_for('signup_data'))
+
         if not (username and userid and password and password_confirm and gender and department and student_id):
             flash("모두 입력해주세요.")
             return redirect(url_for('signup_data'))
@@ -229,7 +234,7 @@ def team_register():
         existing_team = Team.query.filter(Team.members.any(id=current_user.id)).first()
         if existing_team:
             flash("이미 팀에 등록되어 있습니다.")
-            return redirect(url_for('index'))
+            return redirect(url_for('team_register'))
 
         new_team = Team()
 
@@ -252,7 +257,7 @@ def team_register():
             db.session.add(new_team)
             db.session.commit()
             flash("팀이 성공적으로 등록되었습니다.")
-            return redirect(url_for('index')) 
+            return redirect(url_for('team_register')) 
         else:
             db.session.rollback()
             flash("팀원들의 학과와 성별이 일치하지 않습니다.")
@@ -280,7 +285,7 @@ def team_leave():
     db.session.commit()
 
     flash("팀이 성공적으로 삭제되었습니다.")
-    return redirect(url_for('index'))
+    return redirect(url_for('settings'))
 
 @application.route("/email", methods=['POST', 'GET'])
 def email():
@@ -453,8 +458,8 @@ def delete_account():
     else:
         db.session.delete(user)
         db.session.commit()
-        flash("회원 탈퇴가 완료되었습니다.")
         return redirect(url_for('start'))
+        
 
 @application.route('/chatroom')
 @login_required
