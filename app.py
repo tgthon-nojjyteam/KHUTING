@@ -95,9 +95,13 @@ def signup_data():
         student_id = request.form.get('student_id')
         mbti = request.form.get('mbti')
 
-        existing_user = Fcuser.query.filter_by(email=email).first()
-        if existing_user:
-            flash("이미 존재하는 이메일입니다.")
+        existing_user1 = Fcuser.query.filter_by(email=email).first()
+        existing_user2 = Fcuser.query.filter_by(userid=userid).first()
+        if existing_user1:
+            flash("하나의 이메일 주소로는 하나의 계정만 생성할 수 있습니다.")
+            return redirect(url_for('signup_data'))
+        if existing_user2:
+            flash("이미 존재하는 아이디입니다.")
             return redirect(url_for('signup_data'))
 
         if not (username and userid and password and password_confirm and gender and department and student_id):
@@ -231,9 +235,23 @@ def team_register():
             flash("자신의 고유번호를 팀원으로 사용할 수 없습니다.")
             return redirect(url_for('team_register'))
 
-        existing_team = Team.query.filter(Team.members.any(id=current_user.id)).first()
-        if existing_team:
-            flash("이미 팀에 등록되어 있습니다.")
+         # 사용자 고유번호로 Fcuser 객체 조회
+        users = Fcuser.query.filter(Fcuser.unique_number.in_([user1_number, user2_number])).all()
+
+        if len(users) != 2:
+            flash("입력된 고유번호가 올바르지 않습니다.")
+            return redirect(url_for('team_register'))
+
+        user1 = next((user for user in users if user.unique_number == user1_number), None)
+        user2 = next((user for user in users if user.unique_number == user2_number), None)
+
+        # user1, user2의 team_id를 가져오기
+        user1_team_id = user1.team_id if user1 else None
+        user2_team_id = user2.team_id if user2 else None
+
+        # user1, user2가 이미 팀에 소속되어 있는지 확인
+        if user1_team_id or user2_team_id:
+            flash("입력된 팀원 중 하나 이상이 이미 팀에 소속되어 있습니다.")
             return redirect(url_for('team_register'))
 
         new_team = Team()
@@ -261,8 +279,6 @@ def team_register():
         else:
             db.session.rollback()
             flash("팀원들의 학과와 성별이 일치하지 않습니다.")
-        
-        return redirect(url_for('team_register'))
 
     return render_template('team_register.html')
 
@@ -292,7 +308,7 @@ def email():
     if request.method == 'POST':
         receiver = request.form['email_receiver'] + '@khu.ac.kr'
 
-        verification_code = random.randint(1000, 999999)
+        verification_code = random.randint(100000, 999999)
         content = f"인증코드 : {verification_code}"
         session['verification_code'] = verification_code
         session['email_receiver'] = receiver
