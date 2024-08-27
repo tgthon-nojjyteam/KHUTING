@@ -21,7 +21,7 @@
               <button onclick="this.parentElement.style.display='none';">&times;</button>
               <ul>
                 {% for message in messages %}
-                  <li>{{ message }}</li>
+                  {{ message }}
                 {% endfor %}
               </ul>
             </div>
