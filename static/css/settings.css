@@ -1,32 +1,117 @@
+/* 기본 폰트 설정 */
 .noto-sans-kr {
     font-family: "Noto Sans KR", sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
 }
 
-body {
+/* h1 스타일 */
+h1 {
     font-family: "Noto Sans KR", sans-serif;
-    font-weight: 600;
+    font-weight: 900;
     letter-spacing: -0.5px;
     margin-left: 10px;
+    margin-bottom: 60px;
+    margin-top: 50px;
+}
+
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 10px;
+    width: 22px;
+    height: auto;
+    cursor: pointer;
+    z-index: 1000;
+    filter: invert(1);
 }
 
 
-#leave-team-button {
-    border: 0;
-    background-color: white;
-    font-family: "Noto Sans KR", sans-serif;
-    font-weight: 600;
-    letter-spacing: -0.5px;
+/* Flash 메시지 스타일 */
+#flash-messages {
+    border: 1px solid #f8d7da;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #f8d7da;
+    color: #842029;
+    border-radius: 5px;
+    text-align: center;
+    position: relative;
+}
+
+#flash-messages button {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    background: none;
+    border: none;
     font-size: 16px;
     cursor: pointer;
+    color: #842029;
+}
+
+/* 버튼 공통 스타일 */
+.btn-custom {
+    width: 92%;
+    padding: 10px;
+    font-size: 18px;    
+    border: none;
+    color: #000000;
+    background-color: #ffffff;
+    cursor: pointer;
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-align: center; /* 중앙 정렬로 변경 */
+    border-radius: 5px; /* 모서리를 둥글게 */
+    transition: background-color 0.3s ease; /* 마우스 오버 시 부드러운 색상 변경 효과 */
+    text-align: left;
+    margin-left: 10px;
+    display: inline-flex;
+    gap: 8px;
+}
+
+#leave-team-button {
+    padding: 7px;
+    margin-left: 13px;
+}
+
+#share-button {
+    padding: 7px;
+    margin-left: 13px;
 }
 
 #signout {
-    color: rgb(255, 31, 69);
-    font-size: 16px;
+    color: rgb(255, 26, 80);
 }
 
+/* hr 스타일 */
 hr {
-    width: 92%
+    width: 92%;
+    margin: 20px auto; /* 중앙 정렬 및 위아래 간격 조정 */
+    border: 0;
+    height: 1px;
+    background: #ddd; /* 얇은 선으로 변경 */
+}
+
+/* 컨테이너 내 텍스트 스타일 */
+p, a {
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    color: #333;
+    text-align: center;
+}
+
+p {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }

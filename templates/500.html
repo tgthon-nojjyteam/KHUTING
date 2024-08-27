@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서버 오류</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/500.css') }}">
+    <link href="https://fonts.cdnfonts.com/css/google-sans" rel="stylesheet">
+                
+
+</head>
+<body>
+    <div class="container text-center mt-5">
+        <h1 class="display-4">500</h1>
+        <p class="message">Internal Server Error</p>
+        <a href="{{ url_for('start') }}" class="btn">홈으로</a>
+        <a href="mailto:jm2147@khu.ac.kr" class="btn" id="ask">문의하기</a>
+    </div>
+</body>
+</html>
