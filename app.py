@@ -97,9 +97,7 @@ def signup_data():
 
         existing_user1 = Fcuser.query.filter_by(email=email).first()
         existing_user2 = Fcuser.query.filter_by(userid=userid).first()
-        if existing_user1:
-            flash("하나의 이메일 주소로는 하나의 계정만 생성할 수 있습니다.")
-            return redirect(url_for('signup_data'))
+
         if existing_user2:
             flash("이미 존재하는 아이디입니다.")
             return redirect(url_for('signup_data'))
@@ -286,10 +284,6 @@ def team_leave():
     # 현재 사용자가 속한 팀을 가져오기
     team = Team.query.filter(Team.members.any(id=current_user.id)).first()
 
-    if not team:
-        flash("현재 팀에 속해있지 않습니다.")
-        return redirect(url_for('settings'))
-
     if current_user.requested:
         flash("매칭 요청 중에는 팀에서 나갈 수 없습니다.")
         return redirect(url_for('settings'))
@@ -334,14 +328,14 @@ def send_email(recipients, content):
         return str(e)
     
 @application.route("/email_verification", methods=['POST', 'GET'])
-def email_verificiation():
+def email_verification():
     entered_code = request.form['enter_code']
     stored_code = session.get('verification_code')
 
     if entered_code == str(stored_code):
         return redirect(url_for('signup_data'))
     else:
-        return render_template('email_verification.html', content="인증코드가 올바르지 않습니다")
+        return render_template('email_verification.html', content="인증코드가 올바르지 않습니다.")
 
 @application.route('/match_teams', methods=['POST'])
 @login_required
