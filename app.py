@@ -97,6 +97,9 @@ def signup_data():
 
         existing_user1 = Fcuser.query.filter_by(email=email).first()
         existing_user2 = Fcuser.query.filter_by(userid=userid).first()
+        if existing_user1:
+            flash("하나의 이메일 주소로는 하나의 계정만 생성할 수 있습니다.")
+            return redirect(url_for('signup_data'))
 
         if existing_user2:
             flash("이미 존재하는 아이디입니다.")

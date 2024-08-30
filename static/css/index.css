@@ -44,6 +44,8 @@ h3 {
     margin-top: 10px;
     margin-left: 10px;
     width: 30%;
+    position: absolute;
+    max-width: 150px;
 }
 
 .logout {
